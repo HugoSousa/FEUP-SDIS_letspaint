@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 	    <title>Collaborative Paint</title>
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
         <link rel="stylesheet" href="css/jquery-ui-1.10.4.custom.min.css" />
         <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
         <script src="//code.jquery.com/jquery-1.10.2.js"></script>
@@ -98,6 +98,6 @@
 </div>
 
 	
-    <script src="paint.js"></script>
+    <script src="js/paint.js"></script>
 	</body>
 </html>
