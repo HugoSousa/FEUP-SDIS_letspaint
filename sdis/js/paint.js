@@ -374,8 +374,7 @@ var sprayIntervalID;
 
 	var onBrushPaint = function () {
 
-		console.log("brush");
-
+		console.log("a");
 
 		ppts.push({
 			x: mouse.x,
@@ -398,32 +397,49 @@ var sprayIntervalID;
 			tmp_ctx.closePath();
 
 			//descobrir o room do utilizador
-			var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "010101"/*tmp_ctx.fillStyle*/ };
-			console.log(JSON.stringify(data));
-
+			console.log("VAI UM PEDIDO");
 			$.ajax({
 				type: "post",
-				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
-				dataType: "jsonp",
+				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+				dataType: "json",
 				contentType: "application/json",
 				data: JSON.stringify(data),
-				jsonpCallback: "parseResponse",
+				//jsonpCallback: "parseResponse",
 				cache: true,
 				timeout: 5000, 
 				success: function(data){
-					console.log("yeeeeey");
+					//console.log("yeeeeey");
 					//console.log(data);
+					//parseResponse(data);
 					//alert(data);
 				}, 
-			});/*.done(function (data) {
-				//alert(data);
-			  console.log(data);
-			});.fail(function (XHR, status, error) {
-			  console.log(error);
-			});*/
-			
+			});
+
+			console.log("b");
 			return;
 		}
+			
+		var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle };
+		console.log(JSON.stringify(data));
+
+		console.log("VAI UM PEDIDO");
+		$.ajax({
+			type: "post",
+			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+			dataType: "json",
+			contentType: "application/json",
+			data: JSON.stringify(data),
+			//jsonpCallback: "parseResponse",
+			cache: true,
+			timeout: 5000, 
+			success: function(data){
+				//console.log("yeeeeey");
+				//console.log(data);
+				//parseResponse(data);
+				//alert(data);
+			}, 
+		});
+
 
 		// Tmp canvas is always cleared up before drawing.
 		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
@@ -445,7 +461,7 @@ var sprayIntervalID;
 			ppts[i + 1].x,
 			ppts[i + 1].y);
 		tmp_ctx.stroke();
-
+		console.log("c");
 	};   
 
 	var onSprayPaint = function(){
@@ -491,8 +507,8 @@ var sprayIntervalID;
 }
 
 	function parseResponse(data){
-		console.log("OI");
-		console.log(data);
+		//console.log("OI");
+		//console.log(data);
 
 		$.ajax({
 				type: "get",
@@ -508,5 +524,5 @@ var sprayIntervalID;
 
 	function count(data){
 		console.log("COUNT");
-		console.log(JSON.stringify(data));
+		console.log(data.length);
 	}
