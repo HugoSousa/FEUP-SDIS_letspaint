@@ -8,7 +8,7 @@ function init_sketch(){
 	canvas.height = parseInt(sketch_style.getPropertyValue('height'));
 	var tool = 'brush';
 	jQuery('#tools input').on('click', function () {
-		console.log('click');
+		//console.log('click');
 		tmp_canvas.style.display = 'block';
 		if(jQuery(this).attr('id') == 'new'){
 			//console.log(canvas.width);
@@ -45,7 +45,6 @@ var sprayIntervalID;
 		
 		
 		textarea.addEventListener('mouseup', function(e) {
-			console.log('ai');
 			tmp_canvas.removeEventListener('mousemove', onPaint, false);
 		}, false);
 
@@ -70,7 +69,6 @@ var sprayIntervalID;
 			tool = 'eraser';
 		}
 
-		console.log('eraser click');
 		// Hide Tmp Canvas
 		tmp_canvas.style.display = 'none';
 	};
@@ -93,16 +91,16 @@ var sprayIntervalID;
 
 		if (tool == 'line') {
 			tmp_canvas.addEventListener('mousemove', onLinePaint, false);
-			//onLinePaint();
+			onLinePaint();
 		} else if (tool == 'rectangle') {
 			tmp_canvas.addEventListener('mousemove', onRectPaint, false);
-			//onRectPaint();
+			onRectPaint();
 		} else if (tool == 'brush') {
 			tmp_canvas.addEventListener('mousemove', onBrushPaint, false);
-			//onBrushPaint();
+			onBrushPaint();
 		} else if (tool == 'circle') {
 			tmp_canvas.addEventListener('mousemove', onCirclePaint, false);
-			//onCirclePaint();
+			onCirclePaint();
 		} else if (tool == 'addtext') {
 			tmp_canvas.addEventListener('mousemove', onPaint, false);
 			//onPaint();
@@ -211,7 +209,7 @@ var sprayIntervalID;
 	canvas.addEventListener('mousedown', function (e) {
 		canvas.addEventListener('mousemove', onErase, false);
 
-		console.log('here');
+		//console.log('here');
 
 		mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
 		mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
@@ -260,7 +258,7 @@ var sprayIntervalID;
 			
 			textarea.style.display = 'block';
 
-			console.log('paint');
+			//console.log('paint');
 		};
 
 	var onErase = function () {
@@ -376,6 +374,9 @@ var sprayIntervalID;
 
 	var onBrushPaint = function () {
 
+		console.log("brush");
+
+
 		ppts.push({
 			x: mouse.x,
 			y: mouse.y
@@ -384,7 +385,6 @@ var sprayIntervalID;
 		if (ppts.length < 3) {
 			var b = ppts[0];
 			tmp_ctx.lineWidth = $('#slider').slider("value");
-console.log(tmp_ctx.lineWidth);
 
 			tmp_ctx.lineJoin = 'round';
 			tmp_ctx.lineCap = 'round';
@@ -397,6 +397,31 @@ console.log(tmp_ctx.lineWidth);
 			tmp_ctx.fill();
 			tmp_ctx.closePath();
 
+			//descobrir o room do utilizador
+			var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "010101"/*tmp_ctx.fillStyle*/ };
+			console.log(JSON.stringify(data));
+
+			$.ajax({
+				type: "post",
+				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
+				dataType: "jsonp",
+				contentType: "application/json",
+				data: JSON.stringify(data),
+				jsonpCallback: "parseResponse",
+				cache: true,
+				timeout: 5000, 
+				success: function(data){
+					console.log("yeeeeey");
+					//console.log(data);
+					//alert(data);
+				}, 
+			});/*.done(function (data) {
+				//alert(data);
+			  console.log(data);
+			});.fail(function (XHR, status, error) {
+			  console.log(error);
+			});*/
+			
 			return;
 		}
 
@@ -464,3 +489,24 @@ console.log(tmp_ctx.lineWidth);
 		}
 	};
 }
+
+	function parseResponse(data){
+		console.log("OI");
+		console.log(data);
+
+		$.ajax({
+				type: "get",
+				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
+				dataType: "jsonp",
+				contentType: "application/json",
+				data: {room: 2},
+				jsonpCallback: "count",
+				cache: true,
+				timeout: 5000
+			});
+	}
+
+	function count(data){
+		console.log("COUNT");
+		console.log(JSON.stringify(data));
+	}
