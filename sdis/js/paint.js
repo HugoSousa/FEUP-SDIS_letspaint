@@ -374,7 +374,7 @@ var sprayIntervalID;
 
 	var onBrushPaint = function () {
 
-		console.log("a");
+		//console.log("a");
 
 		ppts.push({
 			x: mouse.x,
@@ -397,7 +397,9 @@ var sprayIntervalID;
 			tmp_ctx.closePath();
 
 			//descobrir o room do utilizador
-			console.log("VAI UM PEDIDO");
+			var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle };
+
+			//console.log("VAI UM PEDIDO");
 			$.ajax({
 				type: "post",
 				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
@@ -406,7 +408,7 @@ var sprayIntervalID;
 				data: JSON.stringify(data),
 				//jsonpCallback: "parseResponse",
 				cache: true,
-				timeout: 5000, 
+				//timeout: 5000, 
 				success: function(data){
 					//console.log("yeeeeey");
 					//console.log(data);
@@ -415,14 +417,14 @@ var sprayIntervalID;
 				}, 
 			});
 
-			console.log("b");
+			//console.log("b");
 			return;
 		}
 			
 		var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle };
-		console.log(JSON.stringify(data));
+		//console.log(JSON.stringify(data));
 
-		console.log("VAI UM PEDIDO");
+		//console.log("VAI UM PEDIDO");
 		$.ajax({
 			type: "post",
 			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
@@ -431,7 +433,7 @@ var sprayIntervalID;
 			data: JSON.stringify(data),
 			//jsonpCallback: "parseResponse",
 			cache: true,
-			timeout: 5000, 
+			//timeout: 5000, 
 			success: function(data){
 				//console.log("yeeeeey");
 				//console.log(data);
@@ -461,7 +463,6 @@ var sprayIntervalID;
 			ppts[i + 1].x,
 			ppts[i + 1].y);
 		tmp_ctx.stroke();
-		console.log("c");
 	};   
 
 	var onSprayPaint = function(){
