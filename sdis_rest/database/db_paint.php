@@ -25,12 +25,22 @@ class DB_Paint
     function get($room, $time_start, $time_end)
     {
         if(is_null($time_start) && is_null($time_end)){
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ?');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? ORDER BY time DESC');
             if(! $stmt->execute(array($room)))
                 return false;
         }
+        else if(is_null($time_start) && (! is_null($time_end))){
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time <= ? ORDER BY time DESC');
+            if(! $stmt->execute(array($room, $time_end)))
+                return false;
+        }
+        else if((! is_null()) && is_null($time_end)){
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? ORDER BY time DESC');
+            if(! $stmt->execute(array($room, $time_start)))
+                return false;
+        }
         else{
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time >= ? AND time <= ?');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? AND time <= ? ORDER BY time DESC');
             if(! $stmt->execute(array($room, $time_start, $time_end)))
                 return false;
         }

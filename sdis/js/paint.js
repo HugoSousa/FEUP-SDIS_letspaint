@@ -1,4 +1,6 @@
 init_sketch();
+setInterval(getPaints, 1000);
+
 function init_sketch(){
 	var canvas = document.querySelector('#board');
 	var ctx = canvas.getContext('2d');
@@ -431,15 +433,12 @@ var sprayIntervalID;
 			dataType: "json",
 			contentType: "application/json",
 			data: JSON.stringify(data),
-			//jsonpCallback: "parseResponse",
-			cache: true,
-			//timeout: 5000, 
 			success: function(data){
 				//console.log("yeeeeey");
 				//console.log(data);
 				//parseResponse(data);
 				//alert(data);
-			}, 
+			}
 		});
 
 
@@ -507,23 +506,61 @@ var sprayIntervalID;
 	};
 }
 
-	function parseResponse(data){
-		//console.log("OI");
-		//console.log(data);
+function parseResponse(data){
+	//console.log("OI");
+	//console.log(data);
 
-		$.ajax({
-				type: "get",
-				url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
-				dataType: "jsonp",
-				contentType: "application/json",
-				data: {room: 2},
-				jsonpCallback: "count",
-				cache: true,
-				timeout: 5000
-			});
-	}
+	$.ajax({
+			type: "get",
+			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
+			dataType: "json",
+			contentType: "application/json",
+			data: {room: 2}
+		});
+}
 
-	function count(data){
-		console.log("COUNT");
-		console.log(data.length);
+function count(data){
+	console.log("COUNT");
+	console.log(data.length);
+}
+
+var last_time;
+var actual_time;
+
+function updateTime(){
+
+	var now = new Date(); 
+	actual_time = now.getFullYear().toString() + '-' + now.getMonth().toString() + '-' + now.getDate().toString() + ' ' + now.getHours().toString() + ':' + now.getMinutes().toString() + ':' + now.getSeconds().toString() + '.' + now.getMilliseconds().toString();
+
+	if (typeof last_time == 'undefined') {
+  		last_time = (now.getFullYear()-10).toString() + '-' + now.getMonth().toString() + '-' + now.getDate().toString() + ' ' + now.getHours().toString() + ':' + now.getMinutes().toString() + ':' + now.getSeconds().toString() + '.' + now.getMilliseconds().toString();
 	}
+}
+
+
+function getPaints(){
+
+	updateTime();
+
+	console.log("LAST: " + last_time);
+	console.log("ACTUAL: " + actual_time);
+	//fazer get dos paints desta room
+	//descobrir room
+	$.ajax({
+		type: "get",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+		dataType: "json",
+		contentType: "application/json",
+		data: {room: 2, time_start: last_time, time_end: actual_time},
+		success: function(data){
+			//console.log("SUCCESS");
+			//console.log(JSON.stringify(data));
+			if(data.length > 0)
+				last_time = data[0].time;
+			//console.log(data[0].time);
+			console.log(data.length);
+		}
+	});
+
+	//last_time = actual_time;
+}
