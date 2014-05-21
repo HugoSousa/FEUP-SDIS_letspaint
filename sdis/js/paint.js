@@ -1,7 +1,7 @@
-init_sketch();
+//init_sketch();
 setInterval(getPaints, 1000);
 
-function init_sketch(){
+	var line_id;
 	var canvas = document.querySelector('#board');
 	var ctx = canvas.getContext('2d');
 	var sketch = document.querySelector('#sketch');
@@ -9,6 +9,9 @@ function init_sketch(){
 	canvas.width = parseInt(sketch_style.getPropertyValue('width'));
 	canvas.height = parseInt(sketch_style.getPropertyValue('height'));
 	var tool = 'brush';
+	var sprayIntervalID;
+
+	//EVENTS
 	jQuery('#tools input').on('click', function () {
 		//console.log('click');
 		tmp_canvas.style.display = 'block';
@@ -24,6 +27,17 @@ function init_sketch(){
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 	});
 
+	document.querySelector('#eraser').onclick = function () {
+		if (this.checked){
+			tool = 'eraser';
+		}
+
+		// Hide Tmp Canvas
+		tmp_canvas.style.display = 'none';
+	};
+
+
+	//TEMPORARY CANVAS
 	var tmp_canvas = document.createElement('canvas');
 	var tmp_ctx = tmp_canvas.getContext('2d');
 	tmp_canvas.id = 'tmp_canvas';
@@ -32,23 +46,23 @@ function init_sketch(){
 
 	sketch.appendChild(tmp_canvas);
 
+
 /************* for addding text ***********/
-var sprayIntervalID;
-		
-		var textarea = document.createElement('textarea');
-		textarea.id = 'text_tool';
-		sketch.appendChild(textarea);
-		
-		// Text tool's text container for calculating
-		// lines/chars
-		var tmp_txt_ctn = document.createElement('div');
-		tmp_txt_ctn.style.display = 'none';
-		sketch.appendChild(tmp_txt_ctn);
-		
-		
-		textarea.addEventListener('mouseup', function(e) {
-			tmp_canvas.removeEventListener('mousemove', onPaint, false);
-		}, false);
+	
+	var textarea = document.createElement('textarea');
+	textarea.id = 'text_tool';
+	sketch.appendChild(textarea);
+	
+	// Text tool's text container for calculating
+	// lines/chars
+	var tmp_txt_ctn = document.createElement('div');
+	tmp_txt_ctn.style.display = 'none';
+	sketch.appendChild(tmp_txt_ctn);
+	
+	
+	textarea.addEventListener('mouseup', function(e) {
+		tmp_canvas.removeEventListener('mousemove', onPaint, false);
+	}, false);
 
 /*********** end for text *********/
 
@@ -66,14 +80,7 @@ var sprayIntervalID;
 		y: 0
 	};
 
-	document.querySelector('#eraser').onclick = function () {
-		if (this.checked){
-			tool = 'eraser';
-		}
 
-		// Hide Tmp Canvas
-		tmp_canvas.style.display = 'none';
-	};
 	/* Mouse Capturing Work */
 	tmp_canvas.addEventListener('mousemove', function (e) {
 
@@ -374,15 +381,25 @@ var sprayIntervalID;
 	// Pencil Points
 	var ppts = [];
 
-	var onBrushPaint = function () {
+	var onBrushPaint = function (points) {
+		console.log("OLE");
 
-		//console.log("a");
-
+		if(ppts.length == 0){
+			//gerar novo id
+			console.log("NEW ID!");
+			now = new Date();
+			line_id = now.getUTCMinutes().toString() + now.getUTCSeconds().toString() + now.getUTCMilliseconds().toString();
+		}
+	//console.log("a");
 		ppts.push({
 			x: mouse.x,
 			y: mouse.y
 		});
+		
+	
 
+		console.log(ppts);
+		
 		if (ppts.length < 3) {
 			var b = ppts[0];
 			tmp_ctx.lineWidth = $('#slider').slider("value");
@@ -399,8 +416,8 @@ var sprayIntervalID;
 			tmp_ctx.closePath();
 
 			//descobrir o room do utilizador
-			var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle };
-
+			var data = { "room": 3, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+			console.log(data);
 			//console.log("VAI UM PEDIDO");
 			$.ajax({
 				type: "post",
@@ -422,8 +439,8 @@ var sprayIntervalID;
 			//console.log("b");
 			return;
 		}
-			
-		var data = { "room": 2, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle };
+		
+		var data = { "room": 3, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id": line_id };
 		//console.log(JSON.stringify(data));
 
 		//console.log("VAI UM PEDIDO");
@@ -440,7 +457,6 @@ var sprayIntervalID;
 				//alert(data);
 			}
 		});
-
 
 		// Tmp canvas is always cleared up before drawing.
 		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
@@ -504,7 +520,6 @@ var sprayIntervalID;
 			tmp_ctx.fillRect(x, y, 1, 1);
 		}
 	};
-}
 
 function parseResponse(data){
 	//console.log("OI");
@@ -530,10 +545,10 @@ var actual_time;
 function updateTime(){
 
 	var now = new Date(); 
-	actual_time = now.getFullYear().toString() + '-' + now.getMonth().toString() + '-' + now.getDate().toString() + ' ' + now.getHours().toString() + ':' + now.getMinutes().toString() + ':' + now.getSeconds().toString() + '.' + now.getMilliseconds().toString();
+	actual_time = now.getUTCFullYear().toString() + '-' + now.getUTCMonth().toString() + '-' + now.getUTCDate().toString() + ' ' + now.getUTCHours().toString() + ':' + now.getUTCMinutes().toString() + ':' + now.getUTCSeconds().toString() + '.' + now.getUTCMilliseconds().toString();
 
 	if (typeof last_time == 'undefined') {
-  		last_time = (now.getFullYear()-10).toString() + '-' + now.getMonth().toString() + '-' + now.getDate().toString() + ' ' + now.getHours().toString() + ':' + now.getMinutes().toString() + ':' + now.getSeconds().toString() + '.' + now.getMilliseconds().toString();
+  		last_time = (now.getUTCFullYear()-10).toString() + '-' + now.getUTCMonth().toString() + '-' + now.getUTCDate().toString() + ' ' + now.getUTCHours().toString() + ':' + now.getUTCMinutes().toString() + ':' + now.getUTCSeconds().toString() + '.' + now.getUTCMilliseconds().toString();
 	}
 }
 
@@ -542,8 +557,8 @@ function getPaints(){
 
 	updateTime();
 
-	console.log("LAST: " + last_time);
-	console.log("ACTUAL: " + actual_time);
+	//console.log("LAST: " + last_time);
+	//console.log("ACTUAL: " + actual_time);
 	//fazer get dos paints desta room
 	//descobrir room
 	$.ajax({
@@ -551,16 +566,130 @@ function getPaints(){
 		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
 		dataType: "json",
 		contentType: "application/json",
-		data: {room: 2, time_start: last_time, time_end: actual_time},
+		data: {room: 3, time_start: last_time, time_end: actual_time},
 		success: function(data){
 			//console.log("SUCCESS");
 			//console.log(JSON.stringify(data));
-			if(data.length > 0)
-				last_time = data[0].time;
+			if(data.length > 0){
+				last_time = data[data.length-1].time;
+
+				var points = []; 
+				for(var i = 0; i < data.length; i++){
+					points.push({
+						line_id: data[i].line_id, 
+						width: data[i].width,
+						color: data[i].color,
+						pos_x: data[i].pos_x,
+						pos_y: data[i].pos_y
+					});
+				}
+
+				brushPaint(points);
+			}
 			//console.log(data[0].time);
 			console.log(data.length);
+			
+
 		}
 	});
+}
 
-	//last_time = actual_time;
+
+function brushPaint(ppts){
+	console.log("BRUSH PAINT: PINTAR " + ppts.length + " PONTOS");
+
+	for(var i = 0; i < ppts.length; i++){
+
+		tmp_ctx.lineWidth = ppts[i].width;
+		tmp_ctx.lineJoin = 'round';
+		tmp_ctx.lineCap = 'round';
+		tmp_ctx.strokeStyle = ppts[i].color;
+		tmp_ctx.fillStyle = ppts[i].color;
+
+		console.log(ppts[i].line_id);
+
+		if(i > 0){
+			if(ppts[i].line_id != ppts[i-1].line_id){
+				console.log("MUDAR LINHA!");
+				//e se for so um ponto?
+				//verificar se ha 
+				if(ppts.length > i+2){
+					console.log("A");
+					//verificar se 2 posiçoes a frente é o mesmo id
+					if(ppts[i+2].line_id == ppts[i].line_id){
+						console.log("B");
+						tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+						tmp_ctx.beginPath();
+						tmp_ctx.moveTo(ppts[i].pos_x, ppts[i].pos_y);
+
+						for (var j = i; j < ppts.length - 2; j++) {
+							var c = (parseFloat(ppts[j].pos_x) + parseFloat(ppts[j + 1].pos_x)) / 2;
+							var d = (parseFloat(ppts[j].pos_y) + parseFloat(ppts[j + 1].pos_y)) / 2;
+
+							tmp_ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, c, d);
+							if(ppts[j].line_id != ppts[j+2].line_id)
+								break;
+						}
+
+						// For the last 2 points
+						tmp_ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, ppts[j + 1].pos_x, ppts[j + 1].pos_y);
+						tmp_ctx.stroke();
+						ctx.drawImage(tmp_canvas, 0, 0);
+					}
+					else{
+						tmp_ctx.beginPath();
+						tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+						tmp_ctx.fill();
+						tmp_ctx.closePath();
+						ctx.drawImage(tmp_canvas, 0, 0);
+					}
+				}
+				else{
+					tmp_ctx.beginPath();
+					tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+					tmp_ctx.fill();
+					tmp_ctx.closePath();
+					ctx.drawImage(tmp_canvas, 0, 0);
+				}
+				
+			}
+		}
+		else{
+			if(ppts.length > 3){
+				if(ppts[2].line_id == ppts[0].line_id){
+						//tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+						tmp_ctx.beginPath();
+						tmp_ctx.moveTo(ppts[0].pos_x, ppts[0].pos_y);
+
+						for (var j = 0; j < ppts.length - 2; j++) {
+							//console.log(ppts[j].pos_x + " / " +  ppts[j + 1].pos_x);
+							//console.log(ppts[j].pos_y + " / " +  ppts[j + 1].pos_y);
+
+							var c = (parseFloat(ppts[j].pos_x) + parseFloat(ppts[j + 1].pos_x)) / 2;
+							var d = (parseFloat(ppts[j].pos_y) + parseFloat(ppts[j + 1].pos_y)) / 2;
+
+							//console.log("X: " + ppts[j].pos_x + " /  Y: " + ppts[j].pos_y);
+							//console.log("C: " + c + " /  D: " + d);
+							tmp_ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, c, d);
+							if(ppts[j].line_id != ppts[j+2].line_id)
+								break;
+						}
+
+						// For the last 2 points
+						tmp_ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, ppts[j + 1].pos_x, ppts[j + 1].pos_y);
+						tmp_ctx.stroke();
+						ctx.drawImage(tmp_canvas, 0, 0);
+				}
+			}
+			console.log("X");
+			tmp_ctx.beginPath();
+			tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
+			tmp_ctx.fill();
+			tmp_ctx.closePath();
+			ctx.drawImage(tmp_canvas, 0, 0);
+		}
+	}
+	ctx.drawImage(tmp_canvas, 0, 0);
 }

@@ -25,22 +25,22 @@ class DB_Paint
     function get($room, $time_start, $time_end)
     {
         if(is_null($time_start) && is_null($time_end)){
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? ORDER BY time DESC');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? ORDER BY time');
             if(! $stmt->execute(array($room)))
                 return false;
         }
         else if(is_null($time_start) && (! is_null($time_end))){
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time <= ? ORDER BY time DESC');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time <= ? ORDER BY time');
             if(! $stmt->execute(array($room, $time_end)))
                 return false;
         }
         else if((! is_null()) && is_null($time_end)){
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? ORDER BY time DESC');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? ORDER BY time');
             if(! $stmt->execute(array($room, $time_start)))
                 return false;
         }
         else{
-            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? AND time <= ? ORDER BY time DESC');
+            $stmt = $this->db->prepare('SELECT * FROM paint WHERE id_room = ? AND time > ? AND time <= ? ORDER BY time');
             if(! $stmt->execute(array($room, $time_start, $time_end)))
                 return false;
         }
@@ -74,18 +74,18 @@ class DB_Paint
     
     function insert ($request_data)
     {
-        header('Access-Control-Allow-Origin: *');
         $id_room = $request_data['room'];
         $type = $request_data['type'];
         $width = $request_data['width'];
         $pos_x = $request_data['pos_x'];
         $pos_y = $request_data['pos_y'];
         $color = $request_data['color'];
+        $line_id = $request_data['line_id'];
 
-        $sql = "INSERT INTO paint (id_room, type, width, pos_x, pos_y, color) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO paint (id_room, type, line_id, width, pos_x, pos_y, color) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
 
-        if(! $stmt->execute(array($id_room, $type, $width, $pos_x, $pos_y, $color))){
+        if(! $stmt->execute(array($id_room, $type, $line_id, $width, $pos_x, $pos_y, $color))){
             return false;  
         }
        
