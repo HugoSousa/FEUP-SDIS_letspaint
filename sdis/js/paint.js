@@ -1,5 +1,6 @@
 //init_sketch();
-setInterval(getPaints, 1000);
+//setInterval(getPaints, 1000);
+getPaints();
 
 	var line_id;
 	var canvas = document.querySelector('#board');
@@ -128,6 +129,17 @@ setInterval(getPaints, 1000);
 		tmp_canvas.removeEventListener('mousemove', onCirclePaint, false);
 		tmp_canvas.removeEventListener('mousemove', onPaint, false);
 		tmp_canvas.removeEventListener('mousemove', onSprayPaint, false);
+
+		if(tool == 'rectangle'){
+			insertRectangle();
+		}
+		else if(tool == 'circle'){
+			insertCircle();
+		}
+		else if (tool == 'line'){
+			insertLine();
+		}
+
 		clearInterval(sprayIntervalID);
 
 
@@ -318,7 +330,6 @@ setInterval(getPaints, 1000);
 
 		//without this, after using erase, every tool works like erase (back to default)
 		ctx.globalCompositeOperation = 'source-over';
-
 	};
 	
 
@@ -367,6 +378,7 @@ setInterval(getPaints, 1000);
 		tmp_ctx.lineCap = 'round';
 		tmp_ctx.strokeStyle = $('#swatch').css('background-color');
 		tmp_ctx.fillStyle = $('#swatch').css('background-color');
+
 		// Tmp canvas is always cleared up before drawing.
 		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
@@ -375,7 +387,6 @@ setInterval(getPaints, 1000);
 		var width = Math.abs(mouse.x - start_mouse.x);
 		var height = Math.abs(mouse.y - start_mouse.y);
 		tmp_ctx.strokeRect(x, y, width, height);
-
 	};
 
 	// Pencil Points
@@ -416,8 +427,8 @@ setInterval(getPaints, 1000);
 			tmp_ctx.closePath();
 
 			//descobrir o room do utilizador
-			var data = { "room": 3, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
-			console.log(data);
+			var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+			//console.log(data);
 			//console.log("VAI UM PEDIDO");
 			$.ajax({
 				type: "post",
@@ -440,7 +451,7 @@ setInterval(getPaints, 1000);
 			return;
 		}
 		
-		var data = { "room": 3, "type" : "brush", "width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id": line_id };
+		var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id": line_id };
 		//console.log(JSON.stringify(data));
 
 		//console.log("VAI UM PEDIDO");
@@ -483,14 +494,24 @@ setInterval(getPaints, 1000);
 	var onSprayPaint = function(){
 
 		tmp_ctx.lineWidth = $('#slider').slider("value");
-		//tmp_ctx.lineJoin = 'round';
-		//tmp_ctx.lineCap = 'round';
-		//tmp_ctx.strokeStyle = $('#selColor').val();
 		tmp_ctx.fillStyle = $('#swatch').css('background-color');
 
 		var x = mouse.x;
 		var y = mouse.y;
 		
+		var data = { "room": 3, "type" : "spray", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle};
+
+		$.ajax({
+			type: "post",
+			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+			dataType: "json",
+			contentType: "application/json",
+			data: JSON.stringify(data),
+			success: function(data){
+				console.log(data);
+			}
+		});
+
 		generateSprayParticles();
 	} 
 
@@ -521,24 +542,6 @@ setInterval(getPaints, 1000);
 		}
 	};
 
-function parseResponse(data){
-	//console.log("OI");
-	//console.log(data);
-
-	$.ajax({
-			type: "get",
-			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint.js", 
-			dataType: "json",
-			contentType: "application/json",
-			data: {room: 2}
-		});
-}
-
-function count(data){
-	console.log("COUNT");
-	console.log(data.length);
-}
-
 var last_time;
 var actual_time;
 
@@ -561,6 +564,8 @@ function getPaints(){
 	//console.log("ACTUAL: " + actual_time);
 	//fazer get dos paints desta room
 	//descobrir room
+	console.log("TIME: " + last_time + " - " + actual_time);
+
 	$.ajax({
 		type: "get",
 		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
@@ -573,21 +578,71 @@ function getPaints(){
 			if(data.length > 0){
 				last_time = data[data.length-1].time;
 
-				var points = []; 
+				var brush_points = [];
+				var spray_points = [];
+				var rectangles = [];
+				var circles = [];
+				var lines = [];
+
 				for(var i = 0; i < data.length; i++){
-					points.push({
-						line_id: data[i].line_id, 
-						width: data[i].width,
-						color: data[i].color,
-						pos_x: data[i].pos_x,
-						pos_y: data[i].pos_y
-					});
+					if(data[i].type == 'brush'){
+						brush_points.push({
+							line_id: data[i].line_id, 
+							line_width: data[i].line_width,
+							color: data[i].color,
+							pos_x: data[i].pos_x,
+							pos_y: data[i].pos_y
+						});
+					}
+					else if(data[i].type == 'spray'){
+						spray_points.push({ 
+							line_width: data[i].line_width,
+							color: data[i].color,
+							pos_x: data[i].pos_x,
+							pos_y: data[i].pos_y
+						});
+					}
+					else if(data[i].type == 'rect'){
+						rectangles.push({ 
+							line_width: data[i].line_width,
+							color: data[i].color,
+							pos_x: data[i].pos_x,
+							pos_y: data[i].pos_y,
+							width: data[i].width,
+							height: data[i].height
+						});
+					}
+					else if(data[i].type == 'circle'){
+						circles.push({ 
+							line_width: data[i].line_width,
+							color: data[i].color,
+							pos_x: data[i].pos_x,
+							pos_y: data[i].pos_y,
+							radius: data[i].width
+						});
+					}
+					else if(data[i].type == 'line'){
+						lines.push({ 
+							line_width: data[i].line_width,
+							color: data[i].color,
+							start_x: data[i].pos_x,
+							start_y: data[i].pos_y,
+							end_x: data[i].width,
+							end_y: data[i].height
+						});
+					}
+
 				}
 
-				brushPaint(points);
+				brushPaint(brush_points);
+				sprayPaint(spray_points);
+				rectPaint(rectangles);
+				circlePaint(circles);
+				linePaint(lines);
 			}
 			//console.log(data[0].time);
-			console.log(data.length);
+			console.log("DATA LENGTH: " + data.length);
+			getPaints();
 			
 
 		}
@@ -596,28 +651,28 @@ function getPaints(){
 
 
 function brushPaint(ppts){
-	console.log("BRUSH PAINT: PINTAR " + ppts.length + " PONTOS");
+	//console.log("BRUSH PAINT: PINTAR " + ppts.length + " PONTOS");
 
 	for(var i = 0; i < ppts.length; i++){
 
-		tmp_ctx.lineWidth = ppts[i].width;
+		tmp_ctx.lineWidth = ppts[i].line_width;
 		tmp_ctx.lineJoin = 'round';
 		tmp_ctx.lineCap = 'round';
 		tmp_ctx.strokeStyle = ppts[i].color;
 		tmp_ctx.fillStyle = ppts[i].color;
 
-		console.log(ppts[i].line_id);
+		//console.log(ppts[i].line_id);
 
 		if(i > 0){
 			if(ppts[i].line_id != ppts[i-1].line_id){
-				console.log("MUDAR LINHA!");
+				//console.log("MUDAR LINHA!");
 				//e se for so um ponto?
 				//verificar se ha 
 				if(ppts.length > i+2){
-					console.log("A");
+					//console.log("A");
 					//verificar se 2 posiçoes a frente é o mesmo id
 					if(ppts[i+2].line_id == ppts[i].line_id){
-						console.log("B");
+						//console.log("B");
 						tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
 						tmp_ctx.beginPath();
@@ -683,7 +738,7 @@ function brushPaint(ppts){
 						ctx.drawImage(tmp_canvas, 0, 0);
 				}
 			}
-			console.log("X");
+			//console.log("X");
 			tmp_ctx.beginPath();
 			tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
 			tmp_ctx.fill();
@@ -692,4 +747,151 @@ function brushPaint(ppts){
 		}
 	}
 	ctx.drawImage(tmp_canvas, 0, 0);
+}
+
+
+function sprayPaint(ppts){
+	//console.log("LENGTH: " + ppts.length);
+	
+	for(var i = 0; i < ppts.length; i++){
+		//console.log("AQUI");
+		tmp_ctx.lineWidth = ppts[i].line_width;
+		tmp_ctx.fillStyle = ppts[i].color;
+
+		var pos_x = ppts[i].pos_x;
+		var pos_y = ppts[i].pos_y;
+
+		//console.log("WIDTH: " + tmp_ctx.lineWidth);
+
+		var spray_width = tmp_ctx.lineWidth/1.7;
+		var density = spray_width * 5;
+		
+		for (var j = 0; j < density; j++) {
+			var offset = getRandomOffset(spray_width);
+			
+			var x = parseInt(pos_x) + parseFloat(offset.x);
+			var y = parseInt(pos_y) + parseFloat(offset.y);
+			
+			//console.log("OFFSET: " + offset.x + " - " + offset.y);
+			//console.log("X-Y: " + x  + " " + y);
+
+			tmp_ctx.fillRect(x, y, 1, 1);
+		}
+	}
+
+	ctx.drawImage(tmp_canvas, 0, 0);
+}
+
+
+function insertRectangle(){
+	var x = Math.min(mouse.x, start_mouse.x);
+	var y = Math.min(mouse.y, start_mouse.y);
+	var width = Math.abs(mouse.x - start_mouse.x);
+	var height = Math.abs(mouse.y - start_mouse.y);
+
+	var data = { "room": 3, "type" : "rect", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle, "width": width, "height": height };
+	
+	$.ajax({
+		type: "post",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+		dataType: "json",
+		contentType: "application/json",
+		data: JSON.stringify(data),
+		success: function(data){
+			console.log(data);
+		}, 
+	});
+}
+
+function insertCircle(){
+
+	var x = (mouse.x + start_mouse.x) / 2;
+	var y = (mouse.y + start_mouse.y) / 2;
+
+	var radius = Math.max(
+		Math.abs(mouse.x - start_mouse.x),
+		Math.abs(mouse.y - start_mouse.y)) / 2;
+
+	var data = { "room": 3, "type" : "circle", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.strokeStyle, "width": radius};
+
+	$.ajax({
+		type: "post",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+		dataType: "json",
+		contentType: "application/json",
+		data: JSON.stringify(data),
+		success: function(data){
+			console.log(data);
+		}, 
+	});
+}
+
+function insertLine(){
+
+	var start_x = start_mouse.x;
+	var start_y = start_mouse.y;
+	var end_x = mouse.x;
+	var end_y = mouse.y;
+
+	var data = { "room": 3, "type" : "line", "line_width" : tmp_ctx.lineWidth, "pos_x" : start_x, "pos_y" : start_y, "color" : tmp_ctx.strokeStyle, "width": end_x, "height": end_y};
+
+	$.ajax({
+		type: "post",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
+		dataType: "json",
+		contentType: "application/json",
+		data: JSON.stringify(data),
+		success: function(data){
+			console.log(data);
+		}, 
+	});
+}
+
+function rectPaint(ppts){
+
+	for(var i = 0; i < ppts.length; i++){
+		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+		
+		tmp_ctx.lineWidth = ppts[i].line_width;
+		tmp_ctx.lineJoin = 'round';
+		tmp_ctx.lineCap = 'round';
+		tmp_ctx.strokeStyle = ppts[i].color;
+		tmp_ctx.fillStyle = ppts[i].color;
+
+		tmp_ctx.strokeRect(ppts[i].pos_x, ppts[i].pos_y, ppts[i].width, ppts[i].height);
+
+		ctx.drawImage(tmp_canvas, 0, 0);
+	}
+}
+
+function circlePaint(ppts){
+
+	for(var i = 0; i < ppts.length; i++){
+		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+		tmp_ctx.lineWidth = ppts[i].line_width;
+		tmp_ctx.strokeStyle = ppts[i].color;
+
+		tmp_ctx.beginPath();
+		tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, ppts[i].radius, 0, Math.PI * 2, false);
+		tmp_ctx.stroke();
+		tmp_ctx.closePath();
+
+		ctx.drawImage(tmp_canvas, 0, 0);
+	}
+}
+
+function linePaint(ppts){
+	for(var i = 0; i < ppts.length; i++){
+		// Tmp canvas is always cleared up before drawing.
+		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+		tmp_ctx.beginPath();
+		tmp_ctx.moveTo(ppts[i].start_x, ppts[i].start_y);
+		tmp_ctx.lineTo(ppts[i].end_x, ppts[i].end_y);
+		tmp_ctx.stroke();
+		tmp_ctx.closePath();
+
+		ctx.drawImage(tmp_canvas, 0, 0);
+	}
 }
