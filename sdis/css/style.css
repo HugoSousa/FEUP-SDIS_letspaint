@@ -18,8 +18,13 @@ body{
     float:left;
 }
 
-#new{
+#leave, #save{
     float:right;
+}
+
+#save_canvas{
+    width: 500px;
+    height: 500px;
 }
 
 #sketch {

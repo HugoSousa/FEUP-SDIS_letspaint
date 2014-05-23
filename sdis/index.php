@@ -12,6 +12,17 @@
             $(function() {
                 $( "#radio" ).buttonset();
                 $( "button" ).button();
+                $( "#dialog" ).dialog({
+                  autoOpen: false,
+                  show: {
+                    effect: "blind",
+                    duration: 1000
+                  },
+                  width: 1000
+                });
+                $( "#save" ).click(function() {
+                  $( "#dialog" ).dialog( "open" );
+                });
                 $( "#slider" ).slider({
                     value: 9,
                     min: 1,
@@ -57,7 +68,32 @@
         </script>
   	</head>
   	<body>
+    <script>
+      window.fbAsyncInit = function() {
+        FB.init({
+          appId      : '1482504908633046',
+          xfbml      : true,
+          version    : 'v2.0'
+        });
+      };
 
+      (function(d, s, id){
+         var js, fjs = d.getElementsByTagName(s)[0];
+         if (d.getElementById(id)) {return;}
+         js = d.createElement(s); js.id = id;
+         js.src = "//connect.facebook.net/en_US/sdk.js";
+         fjs.parentNode.insertBefore(js, fjs);
+       }(document, 'script', 'facebook-jssdk'));
+    </script>
+
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.0";
+      fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
 
 <h1 id="header"> Let's Paint! </h1>
 
@@ -71,12 +107,13 @@
         <input type="radio" id="circle" name="radio"><label for="circle">Circle</label>
         <input type="radio" id="line" name="radio"><label for="line">Line</label>
         <input type="radio" id="addtext" name="radio"><label for="addtext">Text</label>
-        <input type="radio" id="eraser" name="radio"><label for="eraser">Eraser</label>
       </div>
       
     </form>
-    <button id="new">New</input>
+    <button id="leave">Leave Room</button>
+    <button id="save">Save</button>   
 </div>
+
 
 <div id="sketch">
     <canvas id="board" ></canvas>
@@ -95,6 +132,12 @@
         <div id="swatch" class="ui-widget-content ui-corner-all"></div>
     </div>
 
+</div>
+
+<div id="dialog" title="Save Image" style="text-align:center">
+    <p>This drawing was saved on the gallery.</p>
+    <p>Do you also want to share this drawing on Facebook?</p>
+    <div id="fb-share" class="fb-share-button" data-width="30" data-type="button" style="margin: 0 auto !important;"></div>
 </div>
 
 	

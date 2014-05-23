@@ -83,11 +83,12 @@ class DB_Paint
         $line_id = $request_data['line_id'];
         $width = $request_data['width'];
         $height = $request_data['height'];
+        $text = $request_data['text'];
 
-        $sql = "INSERT INTO paint (id_room, type, line_id, line_width, pos_x, pos_y, color, width, height) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO paint (id_room, type, line_id, line_width, pos_x, pos_y, color, width, height, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
 
-        if(! $stmt->execute(array($id_room, $type, $line_id, $line_width, $pos_x, $pos_y, $color, $width, $height))){
+        if(! $stmt->execute(array($id_room, $type, $line_id, $line_width, $pos_x, $pos_y, $color, $width, $height, $text))){
             return false;  
         }
        

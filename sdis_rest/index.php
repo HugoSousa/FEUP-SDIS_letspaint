@@ -30,5 +30,6 @@
     $r->addAPIClass('Room');
     $r->addAPIClass('User');
     $r->addAPIClass('Paint');
+    $r->addAPIClass('Gallery');
     $r->handle();
 ?>
