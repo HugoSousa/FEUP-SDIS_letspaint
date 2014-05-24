@@ -1,3 +1,7 @@
+html{
+    padding-bottom: 190px;
+}
+
 body{
     background-color:#CDE6FF;
 }
@@ -28,6 +32,7 @@ body{
 }
 
 #sketch {
+    display: block;
     float: left;
     margin-left:15%;
     margin-top:20px;

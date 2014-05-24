@@ -66,6 +66,8 @@
                 }
             });
         </script>
+        <link type="text/css" href="css/jquery.ui.chatbox.css" rel="stylesheet" />
+        <script type="text/javascript" src="js/jquery.ui.chatbox.js"></script>
   	</head>
   	<body>
     <script>
@@ -140,7 +142,8 @@
     <div id="fb-share" class="fb-share-button" data-width="30" data-type="button" style="margin: 0 auto !important;"></div>
 </div>
 
-	
+<div id="chat_div"> </div>
+
     <script src="js/paint.js"></script>
 	</body>
 </html>

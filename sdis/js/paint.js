@@ -1,6 +1,38 @@
 //init_sketch();
-//setInterval(getPaints, 1000);
+setInterval(getChat, 1000);
 getPaints();
+
+//user é o nome do user
+var box = $("#chat_div").chatbox({	id:"chat_div", 
+	                            user:"nome do user",
+	                            title: "Chat",
+	                            hidden: true,
+	                            messageSent : function(id, user, msg) {
+	                            	//inserir na BD
+	                            	//ter como variaveis globais o id do user e do room
+	                            	var data = { "message": msg, "user_id" : 4, "room_id" : 3};
+
+									$.ajax({
+										type: "post",
+										url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/chat", 
+										dataType: "json",
+										contentType: "application/json",
+										data: JSON.stringify(data),
+										success: function(data){
+										}
+									});
+
+	                                $("#chat_div").chatbox("option", "boxManager").addMsg(user + " (horas)", msg);
+	                            },
+	                        	boxClosed: function(id) {
+	                        		hidden: false;
+	                        		console.log("nao fazer nada");
+	                        	}
+                        	});
+  
+
+
+
 
 var line_id;
 var canvas = document.querySelector('#board');
@@ -706,10 +738,26 @@ var actual_time;
 function updateTime(){
 
 	var now = new Date(); 
-	actual_time = now.getUTCFullYear().toString() + '-' + now.getUTCMonth().toString() + '-' + now.getUTCDate().toString() + ' ' + now.getUTCHours().toString() + ':' + now.getUTCMinutes().toString() + ':' + now.getUTCSeconds().toString() + '.' + now.getUTCMilliseconds().toString();
+	var month = now.getUTCMonth()+1;
+	if(month < 10)
+		month = '0' + month;
+	var day = now.getUTCDate();
+	if(day < 10)
+		day = '0' + day;
+	var hours = now.getUTCHours();
+	if(hours < 10)
+		hours = '0' + hours;
+	var minutes = now.getUTCMinutes();
+	if(minutes < 10)
+		minutes = '0' + minutes;
+	var seconds = now.getUTCSeconds();
+	if(seconds < 10)
+		seconds = '0' + seconds;
+
+	actual_time = now.getUTCFullYear().toString() + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + '.' + now.getUTCMilliseconds().toString();
 
 	if (typeof last_time == 'undefined') {
-  		last_time = (now.getUTCFullYear()-10).toString() + '-' + now.getUTCMonth().toString() + '-' + now.getUTCDate().toString() + ' ' + now.getUTCHours().toString() + ':' + now.getUTCMinutes().toString() + ':' + now.getUTCSeconds().toString() + '.' + now.getUTCMilliseconds().toString();
+  		last_time = (now.getUTCFullYear()-10).toString() + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + '.' + now.getUTCMilliseconds().toString(); 
 	}
 }
 
@@ -1273,3 +1321,70 @@ function textPaint(ppts){
 
 	}
 }
+
+
+////////////////////////////////////////////////////////////////
+//////////////////////////CHAT FUNCTIONS////////////////////////
+////////////////////////////////////////////////////////////////
+
+var chat_last_time;
+var chat_actual_time; 
+
+function updateChatTime(){
+
+	var now = new Date(); 
+	var month = now.getUTCMonth()+1;
+	if(month < 10)
+		month = '0' + month;
+	var day = now.getUTCDate();
+	if(day < 10)
+		day = '0' + day;
+	var hours = now.getUTCHours();
+	if(hours < 10)
+		hours = '0' + hours;
+	var minutes = now.getUTCMinutes();
+	if(minutes < 10)
+		minutes = '0' + minutes;
+	var seconds = now.getUTCSeconds();
+	if(seconds < 10)
+		seconds = '0' + seconds;
+
+	chat_actual_time = now.getUTCFullYear().toString() + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + '.' + now.getUTCMilliseconds().toString();
+
+	if (typeof chat_last_time == 'undefined') {
+  		chat_last_time = (now.getUTCFullYear()-10).toString() + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + '.' + now.getUTCMilliseconds().toString();
+	}
+}
+
+function getChat(){
+
+	updateChatTime();
+
+	console.log("CHAT LAST: " + chat_last_time);
+	console.log("CHAT ACTUAL: " + chat_actual_time);
+	
+	$.ajax({
+		type: "get",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/chat", 
+		dataType: "json",
+		contentType: "application/json",
+		data: {room_id: 3, time_start: chat_last_time, time_end: chat_actual_time},
+		success: function(data){
+			console.log(data);
+			if(data.length > 0){
+				chat_last_time = data[data.length-1].time;
+
+				for(var i = 0; i < data.length; i++){
+
+					//se for do proprio user, nao escrever
+					$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + data[i].time, data[i].message);
+				}
+			}
+
+		}
+	});
+	
+}
+
+
+

@@ -31,5 +31,6 @@
     $r->addAPIClass('User');
     $r->addAPIClass('Paint');
     $r->addAPIClass('Gallery');
+    $r->addAPIClass('Chat');
     $r->handle();
 ?>
