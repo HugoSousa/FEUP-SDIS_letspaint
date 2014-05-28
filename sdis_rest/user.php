@@ -10,12 +10,17 @@ class User {
 		$this->dp = new DB_User();
 	}
 
-	function get($roomName=NULL) {
+	function get($roomName=NULL, $login =NULL) {
 
-		if(is_null($roomName))
+		if(is_null($roomName) && is_null($login))
 			return $this->dp->getAll();
-
-		return $this->dp->getByRoomName($roomName);
+		else if(is_null($roomName) && !is_null($login))
+			return $this->dp->getByName($login);
+		else if(!is_null($roomName) && is_null($login))
+			return $this->dp->getByRoomName($roomName);
+		else 
+			throw new RestException(412, "Invalid parameters.");
+			
 	}
 	
 	

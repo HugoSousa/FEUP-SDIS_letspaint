@@ -31,7 +31,7 @@ class DB_User
 
     function getByName($name)
     {
-        $stmt = $this->db->query("SELECT user.id, user.name, user.id_room FROM user WHERE name = '" . mysql_escape_string($name) . "'");
+        $stmt = $this->db->query("SELECT * FROM user WHERE name = '" . mysql_escape_string($name) . "'");
 
         return $stmt->fetch();
     }
