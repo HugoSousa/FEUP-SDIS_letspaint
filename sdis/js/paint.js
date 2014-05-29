@@ -10,7 +10,7 @@ var box = $("#chat_div").chatbox({	id:"chat_div",
 	                            messageSent : function(id, user, msg) {
 	                            	//inserir na BD
 	                            	//ter como variaveis globais o id do user e do room
-	                            	var data = { "message": msg, "user_id" : 4, "room_id" : 3};
+	                            	var data = { "message": msg, "user_id" : user_id, "room_id" : room_id};
 
 									$.ajax({
 										type: "post",
@@ -22,7 +22,7 @@ var box = $("#chat_div").chatbox({	id:"chat_div",
 										}
 									});
 
-	                                $("#chat_div").chatbox("option", "boxManager").addMsg(user + " (horas)", msg);
+	                                $("#chat_div").chatbox("option", "boxManager").addMsg(username + " (horas)", msg);
 	                            },
 	                        	boxClosed: function(id) {
 	                        		hidden: false;
@@ -461,7 +461,7 @@ var onErasePaint = function () {
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": 3, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+		var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -478,7 +478,7 @@ var onErasePaint = function () {
 		return;
 	}
 	
-	var data = { "room": 3, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+	var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
 
 	$.ajax({
 		type: "post",
@@ -683,7 +683,7 @@ var onSprayPaint = function(){
 	var x = mouse.x;
 	var y = mouse.y;
 	
-	var data = { "room": 3, "type" : "spray", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle};
+	var data = { "room": room_id, "type" : "spray", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle};
 
 	$.ajax({
 		type: "post",
@@ -1020,7 +1020,7 @@ function insertRectangle(){
 	var width = Math.abs(mouse.x - start_mouse.x);
 	var height = Math.abs(mouse.y - start_mouse.y);
 
-	var data = { "room": 3, "type" : "rect", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle, "width": width, "height": height };
+	var data = { "room": room_id, "type" : "rect", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle, "width": width, "height": height };
 	
 	$.ajax({
 		type: "post",
@@ -1043,7 +1043,7 @@ function insertCircle(){
 		Math.abs(mouse.x - start_mouse.x),
 		Math.abs(mouse.y - start_mouse.y)) / 2;
 
-	var data = { "room": 3, "type" : "circle", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.strokeStyle, "width": radius};
+	var data = { "room": room_id, "type" : "circle", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.strokeStyle, "width": radius};
 
 	$.ajax({
 		type: "post",
@@ -1064,7 +1064,7 @@ function insertLine(){
 	var end_x = mouse.x;
 	var end_y = mouse.y;
 
-	var data = { "room": 3, "type" : "line", "line_width" : tmp_ctx.lineWidth, "pos_x" : start_x, "pos_y" : start_y, "color" : tmp_ctx.strokeStyle, "width": end_x, "height": end_y};
+	var data = { "room": room_id, "type" : "line", "line_width" : tmp_ctx.lineWidth, "pos_x" : start_x, "pos_y" : start_y, "color" : tmp_ctx.strokeStyle, "width": end_x, "height": end_y};
 
 	$.ajax({
 		type: "post",
@@ -1368,7 +1368,7 @@ function getChat(){
 		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/chat", 
 		dataType: "json",
 		contentType: "application/json",
-		data: {room_id: 3, time_start: chat_last_time, time_end: chat_actual_time},
+		data: {room_id: room_id, time_start: chat_last_time, time_end: chat_actual_time},
 		success: function(data){
 			console.log(data);
 			if(data.length > 0){
@@ -1377,7 +1377,8 @@ function getChat(){
 				for(var i = 0; i < data.length; i++){
 
 					//se for do proprio user, nao escrever
-					$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + data[i].time, data[i].message);
+					if(data[i].name != username)
+						$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + data[i].time, data[i].message);
 				}
 			}
 
