@@ -40,7 +40,7 @@
           <div class="masthead">
             <div class="inner">
              <ul class="nav masthead-nav">
-              <form class="nav masthead-nav" action="./login.php" method="POST">
+              <form class="nav masthead-nav" action="../actions/login.php" method="POST">
                 <li><input name="username" type="text" class="form-control" placeholder="Username"></li>
                 <li><input name="password" type="password" class="form-control" placeholder="Password"></li>
                 <li><button type="submit" class="btn btn-default">Login</button></li>

@@ -1,5 +1,14 @@
+<?php
+    session_set_cookie_params(3600); //FIXME
+    session_start();
+
+    if(!isset($_SESSION['username']))
+      header('Location: ../pages/home.php');
+
+?>
 
 <!DOCTYPE html>
+
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -32,7 +41,8 @@
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li class="active"><a href="#">Gallery</a></li>
+          <li><a href="#">Gallery</a></li>
+          <li><a href="../actions/logout.php">Logout</a></li>
 
         </ul>
         <h3 class="text-muted">Let's Paint</h3>
@@ -41,7 +51,7 @@
       <div class="jumbotron">
         <h1>Let's Paint</h1>
         <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        <form  action="" method="POST">
+        <form  action="../actions/join_room.php" method="POST">
           <input name="room" type="text" class="form-control" placeholder="Room">
           <button type="submit" class="btn btn-lg btn-default">Join Room</a>
         </form>

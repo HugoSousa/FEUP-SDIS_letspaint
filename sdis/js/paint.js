@@ -461,7 +461,7 @@ var onErasePaint = function () {
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+		var data = { "room": 3, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -478,7 +478,7 @@ var onErasePaint = function () {
 		return;
 	}
 	
-	var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+	var data = { "room": 3, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
 
 	$.ajax({
 		type: "post",
@@ -611,7 +611,7 @@ var onBrushPaint = function () {
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+		var data = { "room": room_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -635,7 +635,7 @@ var onBrushPaint = function () {
 		return;
 	}
 	
-	var data = { "room": 3, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+	var data = { "room": room_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
 
 
 	//console.log("VAI UM PEDIDO");
@@ -777,7 +777,7 @@ function getPaints(){
 		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
 		dataType: "json",
 		contentType: "application/json",
-		data: {room: 3, time_start: last_time, time_end: actual_time},
+		data: {room: room_id, time_start: last_time, time_end: actual_time},
 		success: function(data){
 			//console.log("SUCCESS");
 			//console.log(JSON.stringify(data));
