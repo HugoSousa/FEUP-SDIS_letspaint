@@ -1,5 +1,5 @@
 //init_sketch();
-setInterval(getChat, 1000);
+setInterval(getChat, 500);
 getPaints();
 
 //user é o nome do user
@@ -22,7 +22,7 @@ var box = $("#chat_div").chatbox({	id:"chat_div",
 										}
 									});
 
-	                                $("#chat_div").chatbox("option", "boxManager").addMsg(username + " (horas)", msg);
+	                                //$("#chat_div").chatbox("option", "boxManager").addMsg(username + "  " + chat_actual_time, msg);
 	                            },
 	                        	boxClosed: function(id) {
 	                        		hidden: false;
@@ -1374,11 +1374,18 @@ function getChat(){
 			if(data.length > 0){
 				chat_last_time = data[data.length-1].time;
 
+				var date = new Date()
+				var offset = (date.getTimezoneOffset()/60);
+				alert(offset);
 				for(var i = 0; i < data.length; i++){
 
-					//se for do proprio user, nao escrever
-					if(data[i].name != username)
-						$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + data[i].time, data[i].message);
+
+					var dateSplit = data[i].time.split(" ");
+					var timeSplit = dateSplit[1].split(":");
+					timeSplit[0] = parseInt(timeSplit[0]) - parseInt(offset);
+					var time = timeSplit[0]+ ":" +timeSplit[1]+ ":" + timeSplit[2];
+
+					$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + time, data[i].message);
 				}
 			}
 
