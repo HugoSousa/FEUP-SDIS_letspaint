@@ -22,6 +22,7 @@
 
 	print_r ($json);
 	$_SESSION['room_id'] = $json['id'];
+	$_SESSION['room_name'] = $room;
 
 	header('Location: ../pages/paint.php');
 ?>

@@ -1,12 +1,11 @@
-//init_sketch();
-setInterval(getChat, 500);
-getPaints();
+//setInterval(getChat, 1000);
+//getPaints();
 
 //user é o nome do user
 var box = $("#chat_div").chatbox({	id:"chat_div", 
 	                            user:"nome do user",
 	                            title: "Chat",
-	                            hidden: true,
+	                            hidden: false,
 	                            messageSent : function(id, user, msg) {
 	                            	//inserir na BD
 	                            	//ter como variaveis globais o id do user e do room
@@ -23,11 +22,7 @@ var box = $("#chat_div").chatbox({	id:"chat_div",
 									});
 
 	                                //$("#chat_div").chatbox("option", "boxManager").addMsg(username + "  " + chat_actual_time, msg);
-	                            },
-	                        	boxClosed: function(id) {
-	                        		hidden: false;
-	                        		console.log("nao fazer nada");
-	                        	}
+	                            }
                         	});
   
 
@@ -64,6 +59,28 @@ jQuery('#save').on('click', function () {
 	console.log("click save");
 	var imageURL = canvas.toDataURL();
 
+	//pedido post para API (server). lá guardar a imagem.
+	var data = { "url": imageURL, "user_id" : user_id};
+	//$("#fb-share").attr('href', "http://facebook.com");
+
+
+	$.ajax({
+		type: "post",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/gallery", 
+		dataType: "json",
+		contentType: "application/json",
+		data: JSON.stringify(data),
+		success: function(data){
+			console.log("mudar o href");
+			//console.log(data);
+			//console.log(data['url']);
+			var redirect = "http://paginas.fe.up.pt/~ei11083/sdis_rest/images/" + data['url'];
+			$("#fb-share").attr('href', redirect);
+			FB.XFBML.parse();
+		}
+	});
+
+	/*
 	$.post("images/save.php", {
 		imageData : imageURL
 	}, function(data) {
@@ -71,13 +88,30 @@ jQuery('#save').on('click', function () {
 		console.log(data);
 		$("#fb-share").attr('data-href', "localhost/sdis/images"+data);
 	});
-
-	console.log(imageURL);
+	*/
+	//console.log(imageURL);
 
 	
 	//window.location.href=image;
 });
 
+/*
+jQuery('#leave').on('click', function () {
+
+		$.ajax({
+		url: "../actions/leave_room.php", 
+		dataType: "json",
+		contentType: "application/json",
+		success: function(data){
+			console.log("leave room success");
+		}
+	});
+
+	//unset $_SESSION
+	//header para user_page
+	//se for o ultimo user na sala, eliminar da BD
+});
+*/
 
 
 //TEMPORARY CANVAS
@@ -221,8 +255,8 @@ tmp_canvas.addEventListener('mousedown', function (e) {
 			//console.log("LEFT: " + parseInt(textarea.style.left));
 			//console.log("TOP: " + parseInt(textarea.style.top));
 			
-			console.log("INSERT: " + textarea.value);
-			console.log("FONT SIZE: " + parseInt(fs));
+			//console.log("INSERT: " + textarea.value);
+			//console.log("FONT SIZE: " + parseInt(fs));
 			//lineWidth -> font size
 			var data = { "room": 3, "type" : "text", "line_width" : parseInt(fs), "pos_x" : parseInt(textarea.style.left), "pos_y" : parseInt(textarea.style.top), "color" : tmp_ctx.fillStyle, "width" : tmp_txt_ctn.offsetWidth, "height": tmp_txt_ctn.offsetHeight, "text" : textarea.value};
 
@@ -453,15 +487,15 @@ var onErasePaint = function () {
 
 		tmp_ctx.lineJoin = 'round';
 		tmp_ctx.lineCap = 'round';
-		tmp_ctx.strokeStyle = "ffffff";
-		tmp_ctx.fillStyle = "ffffff";
+		tmp_ctx.strokeStyle = "#ffffff";
+		tmp_ctx.fillStyle = "#ffffff";
 		tmp_ctx.beginPath();
 		tmp_ctx.arc(b.x, b.y, tmp_ctx.lineWidth / 2, 0, Math.PI * 2, !0);
 		tmp_ctx.fill();
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+		var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -478,7 +512,7 @@ var onErasePaint = function () {
 		return;
 	}
 	
-	var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "ffffff", "line_id" : line_id };
+	var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
 
 	$.ajax({
 		type: "post",
@@ -590,7 +624,7 @@ var onBrushPaint = function () {
 		y: mouse.y
 	});
 	
-	console.log("X: " + mouse.x + " / Y: " + mouse.y);
+	//console.log("X: " + mouse.x + " / Y: " + mouse.y);
 
 
 	//console.log(ppts);
@@ -692,7 +726,7 @@ var onSprayPaint = function(){
 		contentType: "application/json",
 		data: JSON.stringify(data),
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 		}
 	});
 
@@ -795,6 +829,7 @@ function getPaints(){
 				for(var i = 0; i < data.length; i++){
 					if(data[i].type == 'brush'){
 						brush_points.push({
+							type: 'brush',
 							line_id: data[i].line_id, 
 							line_width: data[i].line_width,
 							color: data[i].color,
@@ -840,7 +875,8 @@ function getPaints(){
 						});
 					}
 					else if(data[i].type == 'eraser'){
-						brush_points.push({
+						eraser.push({
+							type: 'eraser',
 							line_width: data[i].line_width,
 							pos_x: data[i].pos_x,
 							pos_y: data[i].pos_y,
@@ -866,11 +902,11 @@ function getPaints(){
 				rectPaint(rectangles);
 				circlePaint(circles);
 				linePaint(lines);
-				eraserPaint(eraser);
+				brushPaint(eraser);
 				textPaint(texts);
 			}
 			//console.log(data[0].time);
-			console.log(data.length);
+			//console.log(data.length);
 			getPaints();
 		}
 	});
@@ -886,12 +922,18 @@ function brushPaint(ppts){
 
 	for(var i = 0; i < ppts.length; i++){
 
+		if(ppts[i].type == 'eraser'){
+			//console.log("ERASER COLOR: " + ppts[i].color);
+			tmp_ctx.strokeStyle = '#ffffff';
+			tmp_ctx.fillStyle = '#ffffff';	
+		}
+		else{
+			tmp_ctx.strokeStyle = ppts[i].color;
+			tmp_ctx.fillStyle = ppts[i].color;	
+		}
 		tmp_ctx.lineWidth = ppts[i].line_width;
 		tmp_ctx.lineJoin = 'round';
 		tmp_ctx.lineCap = 'round';
-		tmp_ctx.strokeStyle = ppts[i].color;
-		tmp_ctx.fillStyle = ppts[i].color;
-
 		//console.log(ppts[i].line_id);
 
 		if(i > 0){
@@ -1029,7 +1071,7 @@ function insertRectangle(){
 		contentType: "application/json",
 		data: JSON.stringify(data),
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 		}, 
 	});
 }
@@ -1052,7 +1094,7 @@ function insertCircle(){
 		contentType: "application/json",
 		data: JSON.stringify(data),
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 		}, 
 	});
 }
@@ -1073,7 +1115,7 @@ function insertLine(){
 		contentType: "application/json",
 		data: JSON.stringify(data),
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 		}, 
 	});
 }
@@ -1135,7 +1177,7 @@ function linePaint(ppts){
 	}
 }
 
-
+/*
 function eraserPaint(ppts){
 	//console.log("ERASERPAINT");
 	//console.log("BRUSH PAINT: PINTAR " + ppts.length + " PONTOS");
@@ -1244,13 +1286,13 @@ function eraserPaint(ppts){
 	
 	//ctx.drawImage(tmp_canvas, 0, 0);
 }
-
+*/
 
 function textPaint(ppts){
 
 	for(var k = 0; k < ppts.length; k++){
-		console.log("TEXTO: " + ppts[k].text);
-		console.log("FONT SIZE: " + ppts[k].font_size);
+		//console.log("TEXTO: " + ppts[k].text);
+		//console.log("FONT SIZE: " + ppts[k].font_size);
 
 		tmp_ctx.fillStyle = ppts[k].color;
 		var lines = ppts[k].text.split('\n');
@@ -1360,8 +1402,8 @@ function getChat(){
 
 	updateChatTime();
 
-	console.log("CHAT LAST: " + chat_last_time);
-	console.log("CHAT ACTUAL: " + chat_actual_time);
+	//console.log("CHAT LAST: " + chat_last_time);
+	//console.log("CHAT ACTUAL: " + chat_actual_time);
 	
 	$.ajax({
 		type: "get",
@@ -1370,19 +1412,18 @@ function getChat(){
 		contentType: "application/json",
 		data: {room_id: room_id, time_start: chat_last_time, time_end: chat_actual_time},
 		success: function(data){
-			console.log(data);
+			//console.log(data);
 			if(data.length > 0){
 				chat_last_time = data[data.length-1].time;
 
 				var date = new Date()
 				var offset = (date.getTimezoneOffset()/60);
-				alert(offset);
 				for(var i = 0; i < data.length; i++){
 
 
 					var dateSplit = data[i].time.split(" ");
 					var timeSplit = dateSplit[1].split(":");
-					timeSplit[0] = parseInt(timeSplit[0]) - parseInt(offset);
+					timeSplit[0] = parseInt(timeSplit[0]) - parseInt(offset) + 1;
 					var time = timeSplit[0]+ ":" +timeSplit[1]+ ":" + timeSplit[2];
 
 					$("#chat_div").chatbox("option", "boxManager").addMsg(data[i].name + '   ' + time, data[i].message);

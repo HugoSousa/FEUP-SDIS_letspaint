@@ -8,6 +8,7 @@
     $username = $_SESSION['username'];
     $user_id = $_SESSION['user_id'];
     $room_id = $_SESSION['room_id'];
+    $room_name = $_SESSION['room_name'];
 
     $data = array('user' => $user_id, 'room' => $room_id);
     $response = http_put_data ('http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/user', json_encode($data));
@@ -36,6 +37,7 @@
                   width: 1000
                 });
                 $( "#save" ).click(function() {
+                  console.log("abrir dialog");
                   $( "#dialog" ).dialog( "open" );
                 });
                 $( "#slider" ).slider({
@@ -128,7 +130,9 @@
       </div>
       
     </form>
-    <button id="leave">Leave Room</button>
+    <form action="../actions/leave_room.php">
+      <button id="leave">Leave Room</button>
+    </form>
     <button id="save">Save</button>   
 </div>
 
@@ -155,7 +159,7 @@
 <div id="dialog" title="Save Image" style="text-align:center">
     <p>This drawing was saved on the gallery.</p>
     <p>Do you also want to share this drawing on Facebook?</p>
-    <div id="fb-share" class="fb-share-button" data-width="30" data-type="button" style="margin: 0 auto !important;"></div>
+    <div id="fb-share" data-href="http://google.com" class="fb-share-button" data-width="30" data-type="button" style="margin: 0 auto !important;"></div>
 </div>
 
 <div id="chat_div"> </div>
@@ -163,6 +167,7 @@
     <script>var username = '<?php echo $username; ?>';</script>
     <script>var user_id = '<?php echo $user_id; ?>';</script>
     <script>var room_id = '<?php echo $room_id; ?>';</script>
+    <script>var room_name = '<?php echo $room_name; ?>';</script>
     <script src="../js/paint.js"></script>
 	</body>
 </html>

@@ -31,9 +31,16 @@ class DB_Gallery
 
     function getByUser($user_id)
     {
-        $stmt = $this->db->query("SELECT gallery.url, gallery.id_user FROM gallery, user WHERE gallery.id_user = '" . mysql_escape_string($user_id) . "' AND gallery.id_user = user.id");
+        $stmt = $this->db->query("SELECT gallery.url, gallery.id_user FROM gallery, user WHERE gallery.id_user = '" . mysql_escape_string($user_id) . "' AND gallery.id_user = user.id ORDER BY gallery.url");
 
         return $stmt->fetchAll();
+    }
+
+    function getByUrl($url)
+    {
+        $stmt = $this->db->query("SELECT gallery.url, gallery.id_user FROM gallery WHERE gallery.url = '" . mysql_escape_string($url) . "'");
+
+        return $stmt->fetch();
     }
 
     function insert ($request_data)
@@ -41,15 +48,29 @@ class DB_Gallery
         $user_id = $request_data['user_id'];
         $url = $request_data['url'];
 
+        $data = substr($url, strpos($url, ",") + 1);
+        $decodedData = base64_decode($data);
+
+        //buscar id do utilizador que gravou a imagem a $_SESSION
+        $now = new DateTime();
+        $filename = $user_id . $now->format("Ymdhis").".png";
+        $directory = "images//" . $filename;
+        $fp = fopen($directory, 'wb');
+        fwrite($fp, $decodedData);
+        fclose($fp);
+        //echo $filename;
+
+        
         $sql = "INSERT INTO gallery (url, id_user) VALUES (?, ?)";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(1, $url, PDO::PARAM_STR);
+        $stmt->bindValue(1, $filename, PDO::PARAM_STR);
         $stmt->bindValue(2, $user_id, PDO::PARAM_INT);
 
         if(! $stmt->execute())
             return false;
 
-        return $this->getByUser($user_id);
+        return $this->getByUrl($filename);
+        
     }
 
 }

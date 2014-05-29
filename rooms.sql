@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS chat(
 	message text NOT NULL,
 	id_room integer NOT NULL,
 	id_user integer NOT NULL,
-	time date DEFAULT(strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'utc')),
+	time date DEFAULT(strftime('%H:%M:%S', 'NOW', 'utc')),
 	FOREIGN KEY(id_room) REFERENCES room(id),
 	FOREIGN KEY(id_user) REFERENCES user(id)
 );
