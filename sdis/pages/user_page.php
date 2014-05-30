@@ -18,7 +18,7 @@
     <meta name="author" content="">
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-    <title>Narrow Jumbotron Template for Bootstrap</title>
+    <title>Let's Paint</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -41,7 +41,7 @@
     <div class="container">
       <div class="header">
         <ul class="nav nav-pills pull-right">
-          <li><a href="#">Gallery</a></li>
+          <li><a href="./gallery.php">Gallery</a></li>
           <li><a href="../actions/logout.php">Logout</a></li>
 
         </ul>
