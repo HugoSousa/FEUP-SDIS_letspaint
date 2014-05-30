@@ -1,4 +1,9 @@
 <?php
+  session_set_cookie_params(3600); //FIXME
+  session_start();
+
+   if(!isset($_SESSION['username']))
+    header('Location: ../pages/home.php');
   
   $response = file_get_contents('http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/gallery');
 
