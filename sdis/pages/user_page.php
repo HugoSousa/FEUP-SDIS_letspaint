@@ -14,9 +14,6 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
     <title>Let's Paint</title>
 
@@ -50,10 +47,14 @@
 
       <div class="jumbotron">
         <h1>Let's Paint</h1>
-        <p class="lead">Cras justo odio, dapibus ac facilisis in, egestas eget quam. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.</p>
-        <form  action="../actions/join_room.php" method="POST">
-          <input name="room" type="text" class="form-control" placeholder="Room">
-          <button type="submit" class="btn btn-lg btn-default">Join Room</a>
+        <p class="lead">Join your friends and draw!</p>
+        <p class="lead">If the room you want to join doesn't exist, a new one will be created, so you can invite your friends and have some fun!</p>
+        <form class="form-horizontal" action="../actions/join_room.php" method="POST">
+          <div class="form-group">
+            <input name="room" type="text" class="form-control" placeholder="Room Name" style="text-align:center">
+            <br>
+            <button type="submit" class="btn btn-lg btn-primary">Join Room</a>
+          </div>
         </form>
       </div>
 

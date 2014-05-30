@@ -44,15 +44,14 @@
         
         <style type="text/css">
             .modal-dialog {}
-.thumbnail {margin-bottom:6px;}
-body{
-  background-color: #CDE6FF;
-}
-.carousel-control.left,.carousel-control.right{
-  background-image:none;
-  margin-top:10%;
-  width:5%;
-}
+
+            .thumbnail {margin-bottom:6px;}
+
+            .carousel-control.left,.carousel-control.right{
+              background-image:none;
+              margin-top:10%;
+              width:5%;
+            }
         </style>
     </head>
     
@@ -75,6 +74,9 @@ body{
     <div class="row">
 
       <?php
+        if(count($images) == 0)
+          echo '<h3 style="text-align:center"> There are no saved images yet! </h3>';
+
         for ($i = 16 * $page; $i < count($images); $i++) {
           if ($i >= 16 * ($page+1)) {
             break;
