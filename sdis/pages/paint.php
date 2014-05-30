@@ -1,9 +1,13 @@
 <?php
     session_set_cookie_params(3600); //FIXME
     session_start();
-
+    
     if(!isset($_SESSION['username']))
       header('Location: ../pages/home.php');
+    else if(!isset($_SESSION['room_id'])){
+      header('Location: ../pages/user_page.php');
+    }
+    
 
     $username = $_SESSION['username'];
     $user_id = $_SESSION['user_id'];
@@ -115,6 +119,8 @@
     }(document, 'script', 'facebook-jssdk'));</script>
 
 <h1 id="header"> Let's Paint! </h1>
+<h3 id="room_name"><?php echo str_replace('%20', ' ', $room_name); ?></h3>
+<br>
 
 
 <div id="tools">
@@ -160,6 +166,10 @@
     <p>This drawing was saved on the gallery.</p>
     <p>Do you also want to share this drawing on Facebook?</p>
     <div id="fb-share" data-href="http://google.com" class="fb-share-button" data-width="30" data-type="button" style="margin: 0 auto !important;"></div>
+</div>
+
+<br><br>
+<div id="people"> <h3>People in this room:</h3> 
 </div>
 
 <div id="chat_div"> </div>

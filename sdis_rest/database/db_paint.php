@@ -75,6 +75,7 @@ class DB_Paint
     function insert ($request_data)
     {
         $id_room = $request_data['room'];
+        $id_user = $request_data['user'];
         $type = $request_data['type'];
         $line_width = $request_data['line_width'];
         $pos_x = $request_data['pos_x'];
@@ -85,10 +86,10 @@ class DB_Paint
         $height = $request_data['height'];
         $text = $request_data['text'];
 
-        $sql = "INSERT INTO paint (id_room, type, line_id, line_width, pos_x, pos_y, color, width, height, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO paint (id_room, id_user, type, line_id, line_width, pos_x, pos_y, color, width, height, text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->db->prepare($sql);
 
-        if(! $stmt->execute(array($id_room, $type, $line_id, $line_width, $pos_x, $pos_y, $color, $width, $height, $text))){
+        if(! $stmt->execute(array($id_room, $id_user, $type, $line_id, $line_width, $pos_x, $pos_y, $color, $width, $height, $text))){
             return false;  
         }
        

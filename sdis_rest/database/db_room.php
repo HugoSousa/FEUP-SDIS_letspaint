@@ -49,12 +49,12 @@ class DB_Room
 
         $sql = "INSERT INTO room (id, name) VALUES (NULL, ?)";
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(1, $name, PDO::PARAM_STR);
 
-        if(! $stmt->execute())
+        if(! $stmt->execute(array($name))){
             return false;
-
-        return $this->get($name);
+        }
+        
+        return $this->getByName($name);
     }
 
     function delete ($id)

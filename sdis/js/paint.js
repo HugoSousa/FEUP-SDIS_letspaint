@@ -1,5 +1,10 @@
-//setInterval(getChat, 1000);
-//getPaints();
+var repaint_all = true;
+
+setInterval(getChat, 1000);
+getPaints();
+
+getPeople();
+setInterval(getPeople, 5000);
 
 //user é o nome do user
 var box = $("#chat_div").chatbox({	id:"chat_div", 
@@ -71,9 +76,6 @@ jQuery('#save').on('click', function () {
 		contentType: "application/json",
 		data: JSON.stringify(data),
 		success: function(data){
-			console.log("mudar o href");
-			//console.log(data);
-			//console.log(data['url']);
 			var redirect = "http://paginas.fe.up.pt/~ei11083/sdis_rest/images/" + data['url'];
 			$("#fb-share").attr('href', redirect);
 			FB.XFBML.parse();
@@ -258,7 +260,7 @@ tmp_canvas.addEventListener('mousedown', function (e) {
 			//console.log("INSERT: " + textarea.value);
 			//console.log("FONT SIZE: " + parseInt(fs));
 			//lineWidth -> font size
-			var data = { "room": 3, "type" : "text", "line_width" : parseInt(fs), "pos_x" : parseInt(textarea.style.left), "pos_y" : parseInt(textarea.style.top), "color" : tmp_ctx.fillStyle, "width" : tmp_txt_ctn.offsetWidth, "height": tmp_txt_ctn.offsetHeight, "text" : textarea.value};
+			var data = { "room": room_id, "user": user_id, "type" : "text", "line_width" : parseInt(fs), "pos_x" : parseInt(textarea.style.left), "pos_y" : parseInt(textarea.style.top), "color" : tmp_ctx.fillStyle, "width" : tmp_txt_ctn.offsetWidth, "height": tmp_txt_ctn.offsetHeight, "text" : textarea.value};
 
 			$.ajax({
 				type: "post",
@@ -495,7 +497,7 @@ var onErasePaint = function () {
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
+		var data = { "room": room_id, "user": user_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -512,7 +514,7 @@ var onErasePaint = function () {
 		return;
 	}
 	
-	var data = { "room": room_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
+	var data = { "room": room_id, "user": user_id, "type" : "eraser", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : "#ffffff", "line_id" : line_id };
 
 	$.ajax({
 		type: "post",
@@ -645,7 +647,7 @@ var onBrushPaint = function () {
 		tmp_ctx.closePath();
 
 		//descobrir o room do utilizador
-		var data = { "room": room_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+		var data = { "room": room_id, "user": user_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
 		//console.log(data);
 		//console.log("VAI UM PEDIDO");
 		$.ajax({
@@ -669,7 +671,7 @@ var onBrushPaint = function () {
 		return;
 	}
 	
-	var data = { "room": room_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
+	var data = { "room": room_id, "user": user_id, "type" : "brush", "line_width" : tmp_ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color" : tmp_ctx.fillStyle, "line_id" : line_id };
 
 
 	//console.log("VAI UM PEDIDO");
@@ -717,7 +719,7 @@ var onSprayPaint = function(){
 	var x = mouse.x;
 	var y = mouse.y;
 	
-	var data = { "room": room_id, "type" : "spray", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle};
+	var data = { "room": room_id, "user": user_id, "type" : "spray", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle};
 
 	$.ajax({
 		type: "post",
@@ -800,12 +802,6 @@ function getPaints(){
 
 	updateTime();
 
-	//console.log("LAST: " + last_time);
-	//console.log("ACTUAL: " + actual_time);
-	//fazer get dos paints desta room
-	//descobrir room
-	//console.log("TIME: " + last_time + " - " + actual_time);
-
 	$.ajax({
 		type: "get",
 		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
@@ -818,95 +814,55 @@ function getPaints(){
 			if(data.length > 0){
 				last_time = data[data.length-1].time;
 
-				var brush_points = [];
-				var spray_points = [];
-				var rectangles = [];
-				var circles = [];
-				var lines = [];
-				var eraser = [];
-				var texts = [];
+				var draw = [];
 
 				for(var i = 0; i < data.length; i++){
-					if(data[i].type == 'brush'){
-						brush_points.push({
-							type: 'brush',
-							line_id: data[i].line_id, 
-							line_width: data[i].line_width,
-							color: data[i].color,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y
-						});
-					}
-					else if(data[i].type == 'spray'){
-						spray_points.push({ 
-							line_width: data[i].line_width,
-							color: data[i].color,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y
-						});
-					}
-					else if(data[i].type == 'rect'){
-						rectangles.push({ 
-							line_width: data[i].line_width,
-							color: data[i].color,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y,
-							width: data[i].width,
-							height: data[i].height
-						});
-					}
-					else if(data[i].type == 'circle'){
-						circles.push({ 
-							line_width: data[i].line_width,
-							color: data[i].color,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y,
-							radius: data[i].width
-						});
-					}
-					else if(data[i].type == 'line'){
-						lines.push({ 
-							line_width: data[i].line_width,
-							color: data[i].color,
-							start_x: data[i].pos_x,
-							start_y: data[i].pos_y,
-							end_x: data[i].width,
-							end_y: data[i].height
-						});
-					}
-					else if(data[i].type == 'eraser'){
-						eraser.push({
-							type: 'eraser',
-							line_width: data[i].line_width,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y,
-							line_id: data[i].line_id
-						})
-					}
-					else if(data[i].type == 'text'){
-						texts.push({
-							font_size: data[i].line_width,
-							pos_x: data[i].pos_x,
-							pos_y: data[i].pos_y,
-							color: data[i].color,
-							text_width: data[i].width,
-							text_height: data[i].height,
-							text: data[i].text
-						})
-					}
 
+					var type = data[i].type;
+
+					if(repaint_all || user_id != data[i].id_user){
+						if(type == 'rect')
+							rectPaint(data[i]);
+						else if(type == 'circle')
+							circlePaint(data[i]);
+						else if(type == 'line')
+							linePaint(data[i]);
+						else if(type == 'text')
+							textPaint(data[i]);
+						else if(type == 'spray')
+							sprayPaint(data[i]);
+						else if(type == 'brush'){
+							if(draw.length == 0)
+								draw.push(data[i]);
+							else if(draw[draw.length-1].type == 'brush')
+								draw.push(data[i]);
+							else{
+								brushPaint(draw);
+								draw = [];
+								draw.push(data[i]);
+							}
+
+							if(i == data.length - 1)
+								brushPaint(draw);
+						}
+						else if(type == 'eraser'){
+							if(draw.length == 0)
+								draw.push(data[i]);
+							else if(draw[draw.length-1].type == 'eraser')
+								draw.push(data[i]);
+							else{
+								brushPaint(draw);
+								draw = [];
+								draw.push(data[i]);
+							}
+
+							if(i == data.length - 1)
+								brushPaint(draw);
+						}
+					}
 				}
-
-				brushPaint(brush_points);
-				sprayPaint(spray_points);
-				rectPaint(rectangles);
-				circlePaint(circles);
-				linePaint(lines);
-				brushPaint(eraser);
-				textPaint(texts);
 			}
-			//console.log(data[0].time);
-			//console.log(data.length);
+			repaint_all = false;
 			getPaints();
 		}
 	});
@@ -1026,31 +982,30 @@ function brushPaint(ppts){
 function sprayPaint(ppts){
 	//console.log("LENGTH: " + ppts.length);
 	
-	for(var i = 0; i < ppts.length; i++){
-		//console.log("AQUI");
-		tmp_ctx.lineWidth = ppts[i].line_width;
-		tmp_ctx.fillStyle = ppts[i].color;
+	//console.log("AQUI");
+	tmp_ctx.lineWidth = ppts.line_width;
+	tmp_ctx.fillStyle = ppts.color;
 
-		var pos_x = ppts[i].pos_x;
-		var pos_y = ppts[i].pos_y;
+	var pos_x = ppts.pos_x;
+	var pos_y = ppts.pos_y;
 
-		//console.log("WIDTH: " + tmp_ctx.lineWidth);
+	//console.log("WIDTH: " + tmp_ctx.lineWidth);
 
-		var spray_width = tmp_ctx.lineWidth/1.7;
-		var density = spray_width * 5;
+	var spray_width = tmp_ctx.lineWidth/1.7;
+	var density = spray_width * 5;
+	
+	for (var j = 0; j < density; j++) {
+		var offset = getRandomOffset(spray_width);
 		
-		for (var j = 0; j < density; j++) {
-			var offset = getRandomOffset(spray_width);
-			
-			var x = parseInt(pos_x) + parseFloat(offset.x);
-			var y = parseInt(pos_y) + parseFloat(offset.y);
-			
-			//console.log("OFFSET: " + offset.x + " - " + offset.y);
-			//console.log("X-Y: " + x  + " " + y);
+		var x = parseInt(pos_x) + parseFloat(offset.x);
+		var y = parseInt(pos_y) + parseFloat(offset.y);
+		
+		//console.log("OFFSET: " + offset.x + " - " + offset.y);
+		//console.log("X-Y: " + x  + " " + y);
 
-			tmp_ctx.fillRect(x, y, 1, 1);
-		}
+		tmp_ctx.fillRect(x, y, 1, 1);
 	}
+	
 
 	ctx.drawImage(tmp_canvas, 0, 0);
 }
@@ -1062,7 +1017,7 @@ function insertRectangle(){
 	var width = Math.abs(mouse.x - start_mouse.x);
 	var height = Math.abs(mouse.y - start_mouse.y);
 
-	var data = { "room": room_id, "type" : "rect", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle, "width": width, "height": height };
+	var data = { "room": room_id, "user": user_id, "type" : "rect", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.fillStyle, "width": width, "height": height };
 	
 	$.ajax({
 		type: "post",
@@ -1085,7 +1040,7 @@ function insertCircle(){
 		Math.abs(mouse.x - start_mouse.x),
 		Math.abs(mouse.y - start_mouse.y)) / 2;
 
-	var data = { "room": room_id, "type" : "circle", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.strokeStyle, "width": radius};
+	var data = { "room": room_id, "user": user_id, "type" : "circle", "line_width" : tmp_ctx.lineWidth, "pos_x" : x, "pos_y" : y, "color" : tmp_ctx.strokeStyle, "width": radius};
 
 	$.ajax({
 		type: "post",
@@ -1106,7 +1061,7 @@ function insertLine(){
 	var end_x = mouse.x;
 	var end_y = mouse.y;
 
-	var data = { "room": room_id, "type" : "line", "line_width" : tmp_ctx.lineWidth, "pos_x" : start_x, "pos_y" : start_y, "color" : tmp_ctx.strokeStyle, "width": end_x, "height": end_y};
+	var data = { "room": room_id, "user": user_id, "type" : "line", "line_width" : tmp_ctx.lineWidth, "pos_x" : start_x, "pos_y" : start_y, "color" : tmp_ctx.strokeStyle, "width": end_x, "height": end_y};
 
 	$.ajax({
 		type: "post",
@@ -1122,59 +1077,64 @@ function insertLine(){
 
 function rectPaint(ppts){
 
-	for(var i = 0; i < ppts.length; i++){
-		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-		
-		tmp_ctx.lineWidth = ppts[i].line_width;
-		tmp_ctx.lineJoin = 'round';
-		tmp_ctx.lineCap = 'round';
-		tmp_ctx.strokeStyle = ppts[i].color;
-		tmp_ctx.fillStyle = ppts[i].color;
+	tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+	
+	tmp_ctx.lineWidth = ppts.line_width;
+	tmp_ctx.lineJoin = 'round';
+	tmp_ctx.lineCap = 'round';
+	tmp_ctx.strokeStyle = ppts.color;
+	tmp_ctx.fillStyle = ppts.color;
 
-		tmp_ctx.strokeRect(ppts[i].pos_x, ppts[i].pos_y, ppts[i].width, ppts[i].height);
+	tmp_ctx.strokeRect(ppts.pos_x, ppts.pos_y, ppts.width, ppts.height);
 
-		ctx.drawImage(tmp_canvas, 0, 0);
-	}
+	ctx.drawImage(tmp_canvas, 0, 0);
+	
 }
 
 function circlePaint(ppts){
 
-	for(var i = 0; i < ppts.length; i++){
-		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+	var radius = ppts.width;
 
-		tmp_ctx.lineWidth = ppts[i].line_width;
-		tmp_ctx.strokeStyle = ppts[i].color;
+	tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
 
-		tmp_ctx.beginPath();
-		tmp_ctx.arc(ppts[i].pos_x, ppts[i].pos_y, ppts[i].radius, 0, Math.PI * 2, false);
-		tmp_ctx.stroke();
-		tmp_ctx.closePath();
+	tmp_ctx.lineWidth = ppts.line_width;
+	tmp_ctx.strokeStyle = ppts.color;
 
-		ctx.drawImage(tmp_canvas, 0, 0);
-	}
+	tmp_ctx.beginPath();
+	tmp_ctx.arc(ppts.pos_x, ppts.pos_y, radius, 0, Math.PI * 2, false);
+	tmp_ctx.stroke();
+	tmp_ctx.closePath();
+
+	ctx.drawImage(tmp_canvas, 0, 0);
+	
 }
 
 function linePaint(ppts){
-	for(var i = 0; i < ppts.length; i++){
 
-		tmp_ctx.lineWidth = ppts[i].line_width;
-		tmp_ctx.lineJoin = 'round';
-		tmp_ctx.lineCap = 'round';
-		tmp_ctx.strokeStyle = ppts[i].color;
-		tmp_ctx.fillStyle = ppts[i].color;
+	var start_x = ppts.pos_x;
+	var start_y = ppts.pos_y;
+	var end_x = ppts.width;
+	var end_y = ppts.height;
 
 
-		// Tmp canvas is always cleared up before drawing.
-		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+	tmp_ctx.lineWidth = ppts.line_width;
+	tmp_ctx.lineJoin = 'round';
+	tmp_ctx.lineCap = 'round';
+	tmp_ctx.strokeStyle = ppts.color;
+	tmp_ctx.fillStyle = ppts.color;
 
-		tmp_ctx.beginPath();
-		tmp_ctx.moveTo(ppts[i].start_x, ppts[i].start_y);
-		tmp_ctx.lineTo(ppts[i].end_x, ppts[i].end_y);
-		tmp_ctx.stroke();
-		tmp_ctx.closePath();
 
-		ctx.drawImage(tmp_canvas, 0, 0);
-	}
+	// Tmp canvas is always cleared up before drawing.
+	tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+
+	tmp_ctx.beginPath();
+	tmp_ctx.moveTo(start_x, start_y);
+	tmp_ctx.lineTo(end_x, end_y);
+	tmp_ctx.stroke();
+	tmp_ctx.closePath();
+
+	ctx.drawImage(tmp_canvas, 0, 0);
+	
 }
 
 /*
@@ -1290,78 +1250,75 @@ function eraserPaint(ppts){
 
 function textPaint(ppts){
 
-	for(var k = 0; k < ppts.length; k++){
-		//console.log("TEXTO: " + ppts[k].text);
-		//console.log("FONT SIZE: " + ppts[k].font_size);
-
-		tmp_ctx.fillStyle = ppts[k].color;
-		var lines = ppts[k].text.split('\n');
-		var processed_lines = [];
-		
-		for (var i = 0; i < lines.length; i++) {
-			var chars = lines[i].length;
-			for (var j = 0; j < chars; j++) {
-				var text_node = document.createTextNode(lines[i][j]);
-				tmp_txt_ctn.appendChild(text_node);
-				
-				// Since tmp_txt_ctn is not taking any space
-				// in layout due to display: none, we gotta
-				// make it take some space, while keeping it
-				// hidden/invisible and then get dimensions
-				tmp_txt_ctn.style.position   = 'absolute';
-				tmp_txt_ctn.style.visibility = 'hidden';
-				tmp_txt_ctn.style.display    = 'block';
-				
-				var width = tmp_txt_ctn.offsetWidth;
-				var height = tmp_txt_ctn.offsetHeight;
-				
-				tmp_txt_ctn.style.position   = '';
-				tmp_txt_ctn.style.visibility = '';
-				tmp_txt_ctn.style.display    = 'none';
-				
-				// Logix
-				// console.log(width, parseInt(textarea.style.width));
-				if (width > parseInt(textarea.style.width)) {
-					break;
-				}
+	tmp_ctx.fillStyle = ppts.color;
+	var lines = ppts.text.split('\n');
+	var processed_lines = [];
+	
+	for (var i = 0; i < lines.length; i++) {
+		var chars = lines[i].length;
+		for (var j = 0; j < chars; j++) {
+			var text_node = document.createTextNode(lines[i][j]);
+			tmp_txt_ctn.appendChild(text_node);
+			
+			// Since tmp_txt_ctn is not taking any space
+			// in layout due to display: none, we gotta
+			// make it take some space, while keeping it
+			// hidden/invisible and then get dimensions
+			tmp_txt_ctn.style.position   = 'absolute';
+			tmp_txt_ctn.style.visibility = 'hidden';
+			tmp_txt_ctn.style.display    = 'block';
+			
+			var width = tmp_txt_ctn.offsetWidth;
+			var height = tmp_txt_ctn.offsetHeight;
+			
+			tmp_txt_ctn.style.position   = '';
+			tmp_txt_ctn.style.visibility = '';
+			tmp_txt_ctn.style.display    = 'none';
+			
+			// Logix
+			// console.log(width, parseInt(textarea.style.width));
+			if (width > parseInt(textarea.style.width)) {
+				break;
 			}
-			
-			processed_lines.push(tmp_txt_ctn.textContent);
-			tmp_txt_ctn.innerHTML = '';
 		}
 		
-		var ta_comp_style = getComputedStyle(textarea);
-		var fs = ppts[k].font_size + 'px';
-		var ff = ta_comp_style.getPropertyValue('font-family');
-		
-		//console.log("FONT SIZE: " + fs);
-		//console.log("FONTE FAMILY " + ff);
-
-		tmp_ctx.font = fs + ' ' + ff;
-		tmp_ctx.textBaseline = 'top';
-		tmp_ctx.strokeStyle = ta_comp_style.getPropertyValue('color');
-		tmp_ctx.fillStyle = ta_comp_style.getPropertyValue('color');
-
-		for (var n = 0; n < processed_lines.length; n++) {
-			var processed_line = processed_lines[n];
-			
-			tmp_ctx.fillText(
-				processed_line,
-				parseInt(ppts[k].pos_x),
-				parseInt(ppts[k].pos_y) + n*parseInt(fs)
-			);
-		}
-
-		// Writing down to real canvas now
-		ctx.drawImage(tmp_canvas, 0, 0);
-		// Clearing tmp canvas
-		tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-		
-		// clearInterval(sprayIntervalID);
-		textarea.style.display = 'none';
-		textarea.value = '';
-
+		processed_lines.push(tmp_txt_ctn.textContent);
+		tmp_txt_ctn.innerHTML = '';
 	}
+	
+	var font_size = ppts.line_width;
+	var ta_comp_style = getComputedStyle(textarea);
+	var fs = font_size + 'px';
+	var ff = ta_comp_style.getPropertyValue('font-family');
+	
+	//console.log("FONT SIZE: " + fs);
+	//console.log("FONTE FAMILY " + ff);
+
+	tmp_ctx.font = fs + ' ' + ff;
+	tmp_ctx.textBaseline = 'top';
+	tmp_ctx.strokeStyle = ta_comp_style.getPropertyValue('color');
+	tmp_ctx.fillStyle = ta_comp_style.getPropertyValue('color');
+
+	for (var n = 0; n < processed_lines.length; n++) {
+		var processed_line = processed_lines[n];
+		
+		tmp_ctx.fillText(
+			processed_line,
+			parseInt(ppts.pos_x),
+			parseInt(ppts.pos_y) + n*parseInt(fs)
+		);
+	}
+
+	// Writing down to real canvas now
+	ctx.drawImage(tmp_canvas, 0, 0);
+	// Clearing tmp canvas
+	tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
+	
+	// clearInterval(sprayIntervalID);
+	textarea.style.display = 'none';
+	textarea.value = '';
+
+
 }
 
 
@@ -1433,6 +1390,25 @@ function getChat(){
 		}
 	});
 	
+}
+
+
+function getPeople(){
+	$.ajax({
+		type: "get",
+		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/user?roomName=" + room_name.replace("%20", " "), 
+		dataType: "json",
+		contentType: "application/json",
+		success: function(data){
+
+			$('#people > span').remove();
+			$('#people > br').remove();
+			for(var i = 0; i < data.length; i++){
+				$('#people').append("<span>" + data[i].name + "</span><br>");
+			}
+
+		}
+	});
 }
 
 

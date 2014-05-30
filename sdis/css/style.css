@@ -6,9 +6,17 @@ body{
     background-color:#CDE6FF;
 }
 
-#header{
+#header, #room_name{
     text-align:center;
     font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+
+#people{
+    text-align:center;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    position:absolute;
+    width:15%;
+    left:0;
 }
 
 #tools{
