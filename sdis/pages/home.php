@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="../../assets/ico/favicon.ico">
 
-    <title>Let's Paint</title>
+    <title>Let's Paint!</title>
 
     <!-- Bootstrap core CSS -->
     <link href="../css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
   </head>
 
   <body>
-    <div class="navbar navbar-inverse">
+    <div class="navbar navbar-inverse navbar-static-top">
 
       <div class="container">
         <a href="" class="navbar-brand">Let's Paint!</a>

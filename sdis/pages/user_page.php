@@ -40,13 +40,14 @@
         <ul class="nav nav-pills pull-right">
           <li><a href="./gallery.php">Gallery</a></li>
           <li><a href="../actions/logout.php">Logout</a></li>
-
         </ul>
-        <h3 class="text-muted">Let's Paint</h3>
+        <h3 class="text-muted">Let's Paint!</h3>
       </div>
 
+      <h3 style="text-align:center">Welcome, <?php echo $_SESSION['username']; ?>!</h3>
+
       <div class="jumbotron">
-        <h1>Let's Paint</h1>
+        <h1>Let's Paint!</h1>
         <p class="lead">Join your friends and draw!</p>
         <p class="lead">If the room you want to join doesn't exist, a new one will be created, so you can invite your friends and have some fun!</p>
         <form class="form-horizontal" action="../actions/join_room.php" method="POST">

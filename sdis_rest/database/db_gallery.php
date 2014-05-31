@@ -24,7 +24,7 @@ class DB_Gallery
     
     function getAll ()
     {
-        $stmt = $this->db->query('SELECT * FROM gallery');
+        $stmt = $this->db->query('SELECT gallery.url, gallery.id_user, gallery.time, user.name FROM gallery, user WHERE gallery.id_user = user.id');
 
         return $stmt->fetchAll();
     }

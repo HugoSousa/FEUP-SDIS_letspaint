@@ -27,7 +27,7 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8"> 
         <meta charset="utf-8">
-        <title>Let's Paint Gallery</title>
+        <title>Let's Paint! Gallery</title>
         <meta name="generator" content="Bootply" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
         <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
@@ -67,7 +67,7 @@
           <li><a href="../actions/logout.php">Logout</a></li>
 
         </ul>
-        <h3 class="text-muted">Let's Paint Gallery</h3>
+        <h3 class="text-muted">Gallery</h3>
       </div>
       <hr>
       <br>
@@ -81,7 +81,7 @@
           if ($i >= 16 * ($page+1)) {
             break;
           }
-          echo '<div class="col-lg-3 col-sm-4 col-xs-6"><a href="#"><img class="thumbnail img-responsive" src="//paginas.fe.up.pt/~ei11083/sdis_rest/images/'.$images[$i]['url'].'""></a></div>' ;
+          echo '<div class="col-lg-3 col-sm-4 col-xs-6"><a href="#"><img save_date="'.$images[$i]['time'].'" user="'.$images[$i]['name'].'" class="thumbnail img-responsive" src="//paginas.fe.up.pt/~ei11083/sdis_rest/images/'.$images[$i]['url'].'""></a></div>' ;
         }
       ?>
     </div>
@@ -118,7 +118,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <button class="close" type="button" data-dismiss="modal">×</button>
-        <h3 class="modal-title"></h3>
+        <h4 class="modal-title" id="user-save"></h4>
+        <div id="date-save"></div>
       </div>
       <div class="modal-body">
         <div class="carousel-inner">
@@ -146,6 +147,9 @@
     $('.row .thumbnail').click(function(){
 
       $('#imgModal').attr('src', $(this).attr('src'));
+      var clicked_id = $(this).attr('id');
+      $('#user-save').text('Saved by ' + $(this).attr('user'));
+      $('#date-save').text($(this).attr('save_date'));
       $('#myModal').modal('show'); // show the modal
 
     });
