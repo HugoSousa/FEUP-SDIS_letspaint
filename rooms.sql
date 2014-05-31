@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS paint(
 CREATE TABLE IF NOT EXISTS gallery(
 	url text PRIMARY KEY,
 	id_user integer NOT NULL,
+	time date DEFAULT(strftime('%Y-%m-%d %H:%M:%S', 'NOW', 'utc')),
 	FOREIGN KEY (id_user) REFERENCES user(id)
 );
 
