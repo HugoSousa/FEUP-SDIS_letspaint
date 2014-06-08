@@ -1,10 +1,10 @@
 var repaint_all = true;
 
-setInterval(getChat, 1000);
-getPaints();
+//setInterval(getChat, 500);
+//getPaints();
 
-getPeople();
-setInterval(getPeople, 5000);
+//getPeople();
+//setInterval(getPeople, 5000);
 
 //user é o nome do user
 var box = $("#chat_div").chatbox({	id:"chat_div", 
@@ -62,6 +62,7 @@ jQuery('#new').on('click', function () {
 
 jQuery('#save').on('click', function () {
 	console.log("click save");
+	
 	var imageURL = canvas.toDataURL();
 
 	//pedido post para API (server). lá guardar a imagem.
@@ -82,39 +83,18 @@ jQuery('#save').on('click', function () {
 		}
 	});
 
-	/*
-	$.post("images/save.php", {
-		imageData : imageURL
-	}, function(data) {
-		//window.location = data;
-		console.log(data);
-		$("#fb-share").attr('data-href', "localhost/sdis/images"+data);
-	});
-	*/
-	//console.log(imageURL);
-
-	
-	//window.location.href=image;
 });
 
-/*
-jQuery('#leave').on('click', function () {
-
-		$.ajax({
+$(window).bind('beforeunload', function(){
+	$.ajax({
+		type: "post",
+		async: true,
 		url: "../actions/leave_room.php", 
-		dataType: "json",
 		contentType: "application/json",
 		success: function(data){
-			console.log("leave room success");
 		}
 	});
-
-	//unset $_SESSION
-	//header para user_page
-	//se for o ultimo user na sala, eliminar da BD
 });
-*/
-
 
 //TEMPORARY CANVAS
 var tmp_canvas = document.createElement('canvas');
@@ -322,35 +302,6 @@ tmp_canvas.addEventListener('mouseup', function () {
 	ppts = [];
 
 }, false);
-/*
-canvas.addEventListener('mousemove', function (e) {
-	mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-	mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-}, false);
-
-canvas.addEventListener('mousedown', function (e) {
-	canvas.addEventListener('mousemove', onErase, false);
-
-	//console.log('here');
-
-	mouse.x = typeof e.offsetX !== 'undefined' ? e.offsetX : e.layerX;
-	mouse.y = typeof e.offsetY !== 'undefined' ? e.offsetY : e.layerY;
-
-	ppts.push({
-		x: mouse.x,
-		y: mouse.y
-	});
-
-	onErase();
-}, false);
-
-canvas.addEventListener('mouseup', function () {
-	canvas.removeEventListener('mousemove', onErase, false);
-
-	// Emptying up Pencil Points
-	ppts = [];
-}, false);
-*/
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -384,91 +335,7 @@ var onPaint = function() {
 
 	textarea.style.display = 'block';
 };
-/*
-var onErase = function () {
 
-	console.log("PPTS LENGTH: " + ppts.length);
-	if(ppts.length == 1){
-		//gerar novo id
-		//console.log("NEW ID!");
-		now = new Date();
-		line_id = now.getUTCMinutes().toString() + now.getUTCSeconds().toString() + now.getUTCMilliseconds().toString();
-	}
-
-	// Saving all the points in an array
-	ppts.push({
-		x: mouse.x,
-		y: mouse.y
-	});
-
-	ctx.globalCompositeOperation = 'destination-out';
-	ctx.fillStyle = 'rgba(0,0,0,1)';
-	ctx.strokeStyle = 'rgba(0,0,0,1)';
-	ctx.lineWidth = $('#slider').slider("value");
-
-	if (ppts.length < 3) {
-		var b = ppts[0];
-		ctx.beginPath();
-		//ctx.moveTo(b.x, b.y);
-		//ctx.lineTo(b.x+50, b.y+50);
-		ctx.arc(b.x, b.y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-		ctx.fill();
-		ctx.closePath();
-
-		var data = { "room": 3, "type" : "brush", "line_width" : ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color": "ffffff", "line_id" : line_id };
-		//console.log(data);
-		//console.log("VAI UM PEDIDO");
-		$.ajax({
-			type: "post",
-			url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
-			dataType: "json",
-			contentType: "application/json",
-			data: JSON.stringify(data),
-			success: function(data){
-			}, 
-		});
-
-		return;
-	}
-
-	var data = { "room": 3, "type" : "brush", "line_width" : ctx.lineWidth, "pos_x" : mouse.x, "pos_y" : mouse.y, "color": ctx.fillStyle, "line_id" : line_id };
-
-	$.ajax({
-		type: "post",
-		url: "http://paginas.fe.up.pt/~ei11083/sdis_rest/index.php/paint", 
-		dataType: "json",
-		contentType: "application/json",
-		data: JSON.stringify(data),
-		success: function(data){
-			//console.log("yeeeeey");
-			//console.log(data);
-			//parseResponse(data);
-			//alert(data);
-		}, 
-	});
-
-	ctx.beginPath();
-	ctx.moveTo(ppts[0].x, ppts[0].y);
-
-	for (var i = 1; i < ppts.length - 2; i++) {
-		var c = (ppts[i].x + ppts[i + 1].x) / 2;
-		var d = (ppts[i].y + ppts[i + 1].y) / 2;
-
-		ctx.quadraticCurveTo(ppts[i].x, ppts[i].y, c, d);
-	}
-
-	// For the last 2 points
-	ctx.quadraticCurveTo(
-		ppts[i].x,
-		ppts[i].y,
-		ppts[i + 1].x,
-		ppts[i + 1].y);
-	ctx.stroke();
-
-	//without this, after using erase, every tool works like erase (back to default)
-	ctx.globalCompositeOperation = 'source-over';
-};
-*/
 
 var onErasePaint = function () {
 
@@ -1136,117 +1003,6 @@ function linePaint(ppts){
 	ctx.drawImage(tmp_canvas, 0, 0);
 	
 }
-
-/*
-function eraserPaint(ppts){
-	//console.log("ERASERPAINT");
-	//console.log("BRUSH PAINT: PINTAR " + ppts.length + " PONTOS");
-	
-
-	for(var i = 0; i < ppts.length; i++){
-		tmp_canvas.style.display = 'none';
-		ctx.globalCompositeOperation = 'destination-out';
-		ctx.fillStyle = 'rgba(0,0,0,1)';
-		ctx.strokeStyle = 'rgba(0,0,0,1)';
-		ctx.lineWidth = ppts[i].line_width;
-
-		tmp_ctx.lineWidth = ppts[i].line_width;
-		tmp_ctx.lineJoin = 'round';
-		tmp_ctx.lineCap = 'round';
-		tmp_ctx.strokeStyle = ppts[i].color;
-		tmp_ctx.fillStyle = ppts[i].color;
-
-		//console.log(ppts[i].line_id);
-
-		if(i > 0){
-			if(ppts[i].line_id != ppts[i-1].line_id){
-				//console.log("MUDAR LINHA!");
-				//e se for so um ponto?
-				//verificar se ha 
-				if(ppts.length > i+2){
-					//console.log("A");
-					//verificar se 2 posiçoes a frente é o mesmo id
-					if(ppts[i+2].line_id == ppts[i].line_id){
-						//console.log("B");
-						//tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-						ctx.beginPath();
-						ctx.moveTo(ppts[i].pos_x, ppts[i].pos_y);
-
-						for (var j = i; j < ppts.length - 2; j++) {
-							var c = (parseFloat(ppts[j].pos_x) + parseFloat(ppts[j + 1].pos_x)) / 2;
-							var d = (parseFloat(ppts[j].pos_y) + parseFloat(ppts[j + 1].pos_y)) / 2;
-
-							ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, c, d);
-							if(ppts[j].line_id != ppts[j+2].line_id)
-								break;
-						}
-
-						// For the last 2 points
-						ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, ppts[j + 1].pos_x, ppts[j + 1].pos_y);
-						ctx.stroke();
-						//ctx.drawImage(tmp_canvas, 0, 0);
-					}
-					else{
-						ctx.beginPath();
-						ctx.arc(ppts[i].pos_x, ppts[i].pos_y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-						ctx.fill();
-						ctx.closePath();
-						//ctx.drawImage(tmp_canvas, 0, 0);
-					}
-				}
-				else{
-					ctx.beginPath();
-					ctx.arc(ppts[i].pos_x, ppts[i].pos_y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-					ctx.fill();
-					ctx.closePath();
-					//ctx.drawImage(tmp_canvas, 0, 0);
-				}
-				
-			}
-		}
-		else{
-			if(ppts.length > 3){
-				if(ppts[2].line_id == ppts[0].line_id){
-						//tmp_ctx.clearRect(0, 0, tmp_canvas.width, tmp_canvas.height);
-
-						ctx.beginPath();
-						ctx.moveTo(ppts[0].pos_x, ppts[0].pos_y);
-
-						for (var j = 0; j < ppts.length - 2; j++) {
-							//console.log(ppts[j].pos_x + " / " +  ppts[j + 1].pos_x);
-							//console.log(ppts[j].pos_y + " / " +  ppts[j + 1].pos_y);
-
-							var c = (parseFloat(ppts[j].pos_x) + parseFloat(ppts[j + 1].pos_x)) / 2;
-							var d = (parseFloat(ppts[j].pos_y) + parseFloat(ppts[j + 1].pos_y)) / 2;
-
-							//console.log("X: " + ppts[j].pos_x + " /  Y: " + ppts[j].pos_y);
-							//console.log("C: " + c + " /  D: " + d);
-							ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, c, d);
-							if(ppts[j].line_id != ppts[j+2].line_id)
-								break;
-						}
-
-						// For the last 2 points
-						ctx.quadraticCurveTo(ppts[j].pos_x, ppts[j].pos_y, ppts[j + 1].pos_x, ppts[j + 1].pos_y);
-						ctx.stroke();
-						//ctx.drawImage(tmp_canvas, 0, 0);
-				}
-			}
-			//console.log("X");
-			ctx.beginPath();
-			ctx.arc(ppts[i].pos_x, ppts[i].pos_y, ctx.lineWidth / 2, 0, Math.PI * 2, !0);
-			ctx.fill();
-			ctx.closePath();
-			//ctx.drawImage(tmp_canvas, 0, 0);
-		}
-		ctx.globalCompositeOperation = 'source-over';
-		tmp_canvas.style.display = 'block';
-	}
-	
-	//ctx.drawImage(tmp_canvas, 0, 0);
-}
-*/
 
 function textPaint(ppts){
 
